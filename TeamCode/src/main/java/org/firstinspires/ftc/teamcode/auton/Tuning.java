@@ -1,7 +1,7 @@
-package org.firstinspires.ftc.teamcode.pedroPathing;
+package org.firstinspires.ftc.teamcode.auton;
 
 import static com.pedropathing.math.MathFunctions.quadraticFit;
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.*;
+import static org.firstinspires.ftc.teamcode.auton.Tuning.*;
 
 import android.annotation.SuppressLint;
 import com.bylazar.configurables.PanelsConfigurables;
