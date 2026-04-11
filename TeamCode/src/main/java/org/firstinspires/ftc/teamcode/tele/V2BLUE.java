@@ -38,6 +38,9 @@ public class V2BLUE extends DbzOpMode {
     public static double servooff = 0.035;
     public static double push0 = 0.85, push1 = 0.67, push2 = 0.47, push3 = 0.22;
     public static double lockpos = 0.71;
+    public static double twitch = 0.76;
+
+
     public static double sticky = 0.15;
 
     public static double faroffset = 200;
@@ -428,14 +431,22 @@ public class V2BLUE extends DbzOpMode {
             case REVERSING:
                 holdoverride = false;
                 holdposition = holdclose;
-                if (!shoot && revtimer.seconds() < 3.0) {
+                if (!shoot && revtimer.seconds() < 0.5) {
                     lpush.setPosition(lockpos);
                     rpush.setPosition(lockpos - servooff);
                     intake.setPower(-1);
                 }
-                if (revtimer.seconds() >= 0.5) holdposition = holdopen;
+                if (revtimer.seconds() >= 0.5){
+                    intake.setPower(0);
+                    lpush.setPosition(twitch);
+                    rpush.setPosition(twitch - servooff);
+                }
+                if(revtimer.seconds() >= 0.7){
+                    lpush.setPosition(lockpos);
+                    rpush.setPosition(lockpos - servooff);
+                }
                 if (revtimer.seconds() >= 3.0) {
-                    intake.setPower(-1);
+                    intake.setPower(0);
                     lpush.setPosition(push0);
                     rpush.setPosition(push0 - servooff);
                     ballstate = BallState.LOCKED;
