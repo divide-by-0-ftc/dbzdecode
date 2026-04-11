@@ -65,7 +65,7 @@ public class V2BLUE extends DbzOpMode {
     public static double maxRotVelocity = 1.0;
     public static double maxTurretVelocity = 5.0;
     public static double xoffset = 0.0;
-    public static double yoffset = 0.0;
+    public static double yoffset = 6.0;
 
     public static double turretOffsetX = -35.0 * 0.03937;
     public static double turretOffsetY = 0.0;
@@ -283,11 +283,11 @@ public class V2BLUE extends DbzOpMode {
         double dt = (now - lastVisionTimeMs) / 1000.0;
         if (dt > 0) {
             turretVelocityDegS = (getturretdeg() - lastTurretAngleDeg) / dt;
-            rotVelocityRadS    = (robotHeadingRad - lastHeadingRad) / dt;
+            rotVelocityRadS = (robotHeadingRad - lastHeadingRad) / dt;
         }
         lastTurretAngleDeg = getturretdeg();
-        lastHeadingRad     = robotHeadingRad;
-        lastVisionTimeMs   = now;
+        lastHeadingRad = robotHeadingRad;
+        lastVisionTimeMs = now;
 
         com.pedropathing.math.Vector vel = follower.getVelocity();
         double driveVel = vel != null ? Math.hypot(vel.getXComponent(), vel.getYComponent()) : 0.0;
@@ -663,6 +663,11 @@ public class V2BLUE extends DbzOpMode {
         telemetry.addData("hold pos", holdposition);
         telemetry.addData("hold override", holdoverride);
         telemetry.addData("hold state", ballstate);
+
+        telemetry.addData("d0", d0.getVoltage());
+        telemetry.addData("d1", d1.getVoltage());
+        telemetry.addData("d2", d2.getVoltage());
+
 
         telemetry.addData("ll status", llStatus);
         telemetry.addData("ll valid", llValid);
