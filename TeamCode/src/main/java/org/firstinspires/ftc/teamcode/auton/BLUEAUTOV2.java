@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.auton;
 
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -18,6 +19,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.extensions.DbzHardwareMap;
 import org.firstinspires.ftc.teamcode.extensions.DbzOpMode;
+
 
 @Config
 @Autonomous(name = "BLUEAUTOV2")
@@ -38,15 +40,17 @@ public class BLUEAUTOV2 extends DbzOpMode
     public static double tdead = 0.0, tmax = 1.0, tks = 0.0, tffdead = 0.0;
     public static double thresh = 220, thresh2 = 180;
     public static double startx = 144 - 114.2417, starty = 133.472;
-    public static double gatex = 144 - 147.1, gatey = 58.9, gateh = 23;
+    public static double gatex = 144 - 145.56, gatey = 61.28, gateh = 21;
     public static double dthresh = 0.157, dthresh1 = 0.173, dthresh2 = 0.155;
     public static double sticky = 0.15;
     public static double revdebounce = 1.3, lockdebounce = 1.1;
+
 
     public static class Paths
     {
         public PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7,
                 Path8, Path9, Path10, Path11, Path12, Path13;
+
 
         public Paths(Follower f)
         {
@@ -54,55 +58,69 @@ public class BLUEAUTOV2 extends DbzOpMode
                             new BezierLine(new Pose(144-111.417, 136.815), new Pose(144-98.149, 83.168)))
                     .setTangentHeadingInterpolation().build();
 
+
             Path2 = f.pathBuilder().addPath(
-                            new BezierCurve(new Pose(144-98.149, 83.168), new Pose(144-110.51829161451816, 62.02878598247808), new Pose(144-130.64287359199, 54.18279098873591)))
+                            new BezierCurve(new Pose(144-98.149, 83.168), new Pose(144-110.51829161451816, 62.02878598247808), new Pose(144-130.64287359199, 58.48279098873591)))
                     .setTangentHeadingInterpolation().build();
 
+
             Path3 = f.pathBuilder().addPath(
-                            new BezierLine(new Pose(144-130.64287359199, 54.18279098873591), new Pose(144-97.149, 77.168)))
+                            new BezierLine(new Pose(144-130.64287359199, 58.48279098873591), new Pose(144-97.149, 77.168)))
                     .setTangentHeadingInterpolation().setReversed().build();
+
 
             Path4 = f.pathBuilder().addPath(
                             new BezierCurve(new Pose(144-97.149, 77.168), new Pose(144-110.990, 60.361), new Pose(gatex, gatey)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180-0), Math.toRadians(180-gateh)).build();
+                    .setLinearHeadingInterpolation(Math.toRadians(180-0), Math.toRadians
+                            (180-gateh)).build();
+
 
             Path5 = f.pathBuilder().addPath(
                             new BezierCurve(new Pose(gatex, gatey), new Pose(144-110.990, 60.361), new Pose(144-97.149, 77.168)))
                     .setLinearHeadingInterpolation(Math.toRadians(180-gateh), Math.toRadians(180-0)).build();
 
+
             Path6 = f.pathBuilder().addPath(
                             new BezierCurve(new Pose(144-97.149, 77.168), new Pose(144-110.990, 60.361), new Pose(gatex, gatey)))
                     .setLinearHeadingInterpolation(Math.toRadians(180-0), Math.toRadians(180-gateh)).build();
+
 
             Path7 = f.pathBuilder().addPath(
                             new BezierCurve(new Pose(gatex, gatey), new Pose(144-110.990, 60.361), new Pose(144-97.149, 77.168)))
                     .setLinearHeadingInterpolation(Math.toRadians(180-gateh), Math.toRadians(180-0)).build();
 
+
             Path8 = f.pathBuilder().addPath(
                             new BezierCurve(new Pose(144-97.149, 77.168), new Pose(144-110.990, 60.361), new Pose(gatex, gatey)))
                     .setLinearHeadingInterpolation(Math.toRadians(180-0), Math.toRadians(180-gateh)).build();
+
 
             Path9 = f.pathBuilder().addPath(
                             new BezierCurve(new Pose(gatex, gatey), new Pose(144-110.990, 60.361), new Pose(144-97.149, 84.566)))
                     .setLinearHeadingInterpolation(Math.toRadians(180-gateh), Math.toRadians(180-0)).build();
 
+
             Path10 = f.pathBuilder().addPath(
                             new BezierLine(new Pose(144-97.149, 84.566), new Pose(144-128.573, 84.566)))
                     .setTangentHeadingInterpolation().build();
+
 
             Path11 = f.pathBuilder().addPath(
                             new BezierLine(new Pose(144-128.573, 84.566), new Pose(144-95.149, 84.168)))
                     .setTangentHeadingInterpolation().setReversed().build();
 
+
             Path12 = f.pathBuilder().addPath(
-                            new BezierCurve(new Pose(144-85.149, 84.168), new Pose(144-105.25156445556946, 40.73091364205258), new Pose(144-133.54693366708383, 28.59198998748437)))
+                            new BezierCurve(new Pose(144-85.149, 84.168), new Pose(144-110.25156445556946, 40.73091364205258), new Pose(144-138.54693366708383, 28.59198998748437)))
                     .setTangentHeadingInterpolation().build();
 
+
             Path13 = f.pathBuilder().addPath(
-                            new BezierLine(new Pose(144-127.207, 35.159), new Pose(144-96.5, 112)))
+                            new BezierLine(new Pose(144-138.54693366708383, 28.59198998748437), new Pose(144-96.5, 112)))
                     .setTangentHeadingInterpolation().setReversed().build();
         }
     }
+
 
     protected Servo rpush, lpush, hood, hold, blinkin;
     protected DcMotorEx intake, fly1, fly2, turret;
@@ -111,6 +129,7 @@ public class BLUEAUTOV2 extends DbzOpMode
     private PIDController tpid;
     private Follower follower;
     private Paths paths;
+
 
     private enum AutonState
     {
@@ -131,8 +150,10 @@ public class BLUEAUTOV2 extends DbzOpMode
     }
     private AutonState state = AutonState.followPath1;
 
+
     private enum BallState { idle, reversing, locked }
     private BallState bstate = BallState.idle;
+
 
     private ElapsedTime statetimer = new ElapsedTime();
     private ElapsedTime revtimer = new ElapsedTime();
@@ -143,11 +164,13 @@ public class BLUEAUTOV2 extends DbzOpMode
     private ElapsedTime st2 = new ElapsedTime();
     private boolean latch0 = false, latch1 = false, latch2 = false;
 
+
     private boolean prevdetect = false;
     private double targetvelocity = 0;
     private double hoodbase = hooddefault;
     private boolean shooting = false;
     private boolean dipping = false, dipdone = false;
+
 
     @Override
     public void opInit()
@@ -158,10 +181,12 @@ public class BLUEAUTOV2 extends DbzOpMode
         hold = hardwareMap.get(Servo.class, "holdServo");
         blinkin = hardwareMap.get(Servo.class, "light");
 
+
         d0 = hardwareMap.get(AnalogInput.class, "distancez");
         d1 = hardwareMap.get(AnalogInput.class, "distance1");
         d2 = hardwareMap.get(AnalogInput.class, "distance2");
         tenc = hardwareMap.get(AnalogInput.class, "turretEncoder");
+
 
         intake = robot.intakeMotor;
         fly1 = robot.outtake1Motor;
@@ -171,30 +196,38 @@ public class BLUEAUTOV2 extends DbzOpMode
         fly1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         fly2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
+
         turret = hardwareMap.get(DcMotorEx.class, DbzHardwareMap.Motor.turret.getName());
         turret.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         turret.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         turret.setDirection(DcMotorEx.Direction.FORWARD);
 
+
         vsensor = hardwareMap.voltageSensor.iterator().next();
+
 
         tpid = new PIDController(tkp, tki, tkd);
         tpid.setTolerance(1.0);
+
 
         hood.setPosition(hooddefault);
         hold.setPosition(holdopen);
         lpush.setPosition(lockpos);
         rpush.setPosition(lockpos - servooff);
 
+
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
 
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(startx, starty, Math.toRadians(270)));
         paths = new Paths(follower);
 
+
         follower.followPath(paths.Path1, true);
         statetimer.reset();
     }
+
 
     @Override
     public void opLoop()
@@ -204,6 +237,7 @@ public class BLUEAUTOV2 extends DbzOpMode
         runflywheel();
         aim();
         dipshot();
+
 
         switch (state)
         {
@@ -217,6 +251,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case shoot1:
                 if (statetimer.seconds() >= 0.5)
                 {
@@ -225,6 +260,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                     state = AutonState.followPath2;
                 }
                 break;
+
 
             case followPath2:
                 hold.setPosition(holdclose);
@@ -235,6 +271,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                     state = AutonState.followPath3;
                 }
                 break;
+
 
             case followPath3:
                 hold.setPosition(holdopen);
@@ -247,8 +284,9 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case shoot3:
-                if (statetimer.seconds() >= 0.5)
+                if (statetimer.seconds() >= 0.6)
                 {
                     endshoot();
                     intake.setPower(1);
@@ -256,6 +294,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                     state = AutonState.followPath4;
                 }
                 break;
+
 
             case followPath4:
                 intake.setPower(1);
@@ -268,9 +307,10 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case intakeWait1:
                 runballdetection();
-                if (bstate == BallState.reversing || statetimer.seconds() >= 0.2)
+                if (statetimer.seconds() >= 0.28)
                 {
                     bstate = BallState.idle;
                     prevdetect = false;
@@ -278,6 +318,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                     state = AutonState.followPath5;
                 }
                 break;
+
 
             case followPath5:
                 if (statetimer.seconds() > 0.5)
@@ -295,6 +336,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case shoot5:
                 if (statetimer.seconds() >= 0.5)
                 {
@@ -304,6 +346,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                     state = AutonState.followPath6;
                 }
                 break;
+
 
             case followPath6:
                 intake.setPower(1);
@@ -316,6 +359,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case intakeWait2:
                 runballdetection();
                 if (bstate == BallState.reversing || statetimer.seconds() >= intakewaittimeout)
@@ -326,6 +370,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                     state = AutonState.followPath7;
                 }
                 break;
+
 
             case followPath7:
                 if (statetimer.seconds() > lockdebounce)
@@ -347,6 +392,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case shoot7:
                 if (statetimer.seconds() >= 0.5)
                 {
@@ -356,6 +402,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                     state = AutonState.followPath8;
                 }
                 break;
+
 
             case followPath8:
                 intake.setPower(1);
@@ -368,6 +415,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case intakeWait3:
                 runballdetection();
                 if (bstate == BallState.reversing || statetimer.seconds() >= intakewaittimeout)
@@ -378,6 +426,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                     state = AutonState.followPath9;
                 }
                 break;
+
 
             case followPath9:
                 if (statetimer.seconds() > lockdebounce)
@@ -399,6 +448,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case shoot9:
                 runballdetection();
                 if (statetimer.seconds() >= 0.5)
@@ -408,6 +458,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                     state = AutonState.followPath10;
                 }
                 break;
+
 
             case followPath10:
                 intake.setPower(1);
@@ -420,6 +471,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case followPath11:
                 hold.setPosition(holdopen);
                 if (!follower.isBusy())
@@ -429,6 +481,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                     state = AutonState.shoot11;
                 }
                 break;
+
 
             case shoot11:
                 if (statetimer.seconds() >= 0.5)
@@ -440,6 +493,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case followPath12:
                 if (!follower.isBusy())
                 {
@@ -448,6 +502,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                     state = AutonState.followPath13;
                 }
                 break;
+
 
             case followPath13:
                 lpush.setPosition(lockpos);
@@ -466,6 +521,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case shoot13:
                 if (statetimer.seconds() >= 0.5)
                 {
@@ -474,6 +530,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case done:
                 intake.setPower(0);
                 fly1.setPower(0);
@@ -481,6 +538,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 turret.setPower(0);
                 break;
         }
+
 
         telemetry.addData("state", state);
         telemetry.addData("ballstate", bstate);
@@ -491,6 +549,7 @@ public class BLUEAUTOV2 extends DbzOpMode
         telemetry.update();
     }
 
+
     private void runballdetection()
     {
         if (d0.getVoltage() < dthresh)  { latch0 = true; st0.reset(); }
@@ -500,7 +559,9 @@ public class BLUEAUTOV2 extends DbzOpMode
         if (st1.seconds() > sticky) latch1 = false;
         if (st2.seconds() > sticky) latch2 = false;
 
+
         boolean hit = latch0 && latch1 && latch2;
+
 
         switch (bstate)
         {
@@ -527,6 +588,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case reversing:
                 if (!shooting && revtimer.seconds() < 2.0)
                 {
@@ -543,6 +605,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 }
                 break;
 
+
             case locked:
                 lpush.setPosition(lockpos);
                 rpush.setPosition(lockpos - servooff);
@@ -550,6 +613,7 @@ public class BLUEAUTOV2 extends DbzOpMode
                 break;
         }
     }
+
 
     private void startshoot()
     {
@@ -560,6 +624,7 @@ public class BLUEAUTOV2 extends DbzOpMode
         dipdone = false;
     }
 
+
     private void endshoot()
     {
         lpush.setPosition(push0);
@@ -568,6 +633,7 @@ public class BLUEAUTOV2 extends DbzOpMode
         bstate = BallState.idle;
         prevdetect = false;
     }
+
 
     private void regressions()
     {
@@ -579,17 +645,18 @@ public class BLUEAUTOV2 extends DbzOpMode
         }
         else if (state == AutonState.shoot1 || state == AutonState.followPath1)
         {
-            hoodbase = 0.5;
-            vel = 1525;
+            hoodbase = 0.473;
+            vel = 1509;
         }
         else
         {
-            hoodbase = 0.5;
-            vel = 1575;
+            hoodbase = 0.523 ;
+            vel = 1570;
         }
         double maxvel = fly2.getMotorType().getMaxRPM() * fly2.getMotorType().getTicksPerRev() / 60.0;
         targetvelocity = Math.max(-maxvel, Math.min(maxvel, vel));
     }
+
 
     private void dipshot()
     {
@@ -617,6 +684,7 @@ public class BLUEAUTOV2 extends DbzOpMode
         }
     }
 
+
     private Pose virtualgoal(Pose p)
     {
         Vector vel = follower.getVelocity();
@@ -628,16 +696,20 @@ public class BLUEAUTOV2 extends DbzOpMode
         return new Pose(goalx - vx*shottime, goaly - vy*shottime, 0);
     }
 
+
     private void aim()
     {
         double tgtangle = 0;
         double clamped = clampturret();
         if (Math.abs(clamped - getturretdeg()) <= thresh) tgtangle = clamped;
 
+
         double cur = getturretdeg();
         double err = wrapangle(tgtangle - cur);
 
+
         if (Math.abs(err) <= tdead) { turret.setPower(0); return; }
+
 
         tpid.setPID(tkp, tki, tkd);
         double out = tpid.calculate(cur, tgtangle);
@@ -647,6 +719,7 @@ public class BLUEAUTOV2 extends DbzOpMode
         if (power < -tmax) power = -tmax;
         turret.setPower(power);
     }
+
 
     private void runflywheel()
     {
@@ -665,25 +738,28 @@ public class BLUEAUTOV2 extends DbzOpMode
         fly2.setPower(power);
     }
 
+
     private double getturretdeg()
     {
         double angle = (tenc.getVoltage() / tenc.getMaxVoltage()) * 360.0 - tzero;
         return wrapasym(angle, thresh);
     }
 
+
     private double clampturret()
     {
         double rawangle;
         if (state == AutonState.shoot1 || state == AutonState.followPath1)
-            rawangle = -144;
+            rawangle = -149.29999999;
         else if (state == AutonState.shoot11 || state == AutonState.followPath11)
-            rawangle = -30;
-        else if (state == AutonState.shoot13 || state == AutonState.followPath13)
-            rawangle = -90;
-        else if (state == AutonState.followPath3 || state == AutonState.shoot3)
-            rawangle = -85;
-        else
             rawangle = -35;
+        else if (state == AutonState.shoot13 || state == AutonState.followPath13)
+            rawangle = -88;
+        else if (state == AutonState.followPath3 || state == AutonState.shoot3)
+            rawangle = -67.47;
+        else
+            rawangle = -37.267;
+
 
         double d = wrapasym(rawangle, thresh);
         if (d > thresh2) return thresh2;
@@ -691,10 +767,13 @@ public class BLUEAUTOV2 extends DbzOpMode
         return d;
     }
 
+
     private double wrapangle(double a) { return ((a + 180) % 360 + 360) % 360 - 180; }
     private double wrapasym(double a, double n) { return ((a + n) % 360 + 360) % 360 - n; }
 
+
     @Override public void opLoopHook() {}
+
 
     @Override
     public void opTeardown()
