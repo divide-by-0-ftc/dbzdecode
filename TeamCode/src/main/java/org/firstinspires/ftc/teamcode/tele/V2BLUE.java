@@ -40,7 +40,6 @@ public class V2BLUE extends DbzOpMode {
     public static double lockpos = 0.71;
     public static double twitch = 0.76;
 
-
     public static double sticky = 0.15;
 
     public static double faroffset = 200;
@@ -74,6 +73,10 @@ public class V2BLUE extends DbzOpMode {
     public static double turretOffsetY = 0.0;
     public static double camOffsetX = 158.37973 * 0.03937;
     public static double camOffsetY = 0.0;
+
+    public static boolean sotmEnabled = true;
+    public static double sotmDelay = 0.1;
+    public static double sotmMinVel = 1.5;
 
     protected Servo rpush, lpush, hood, hold, blinkin;
     protected DcMotorEx intake, fly1, fly2, turret;
@@ -138,6 +141,9 @@ public class V2BLUE extends DbzOpMode {
     private boolean llValid = false;
     private boolean llApplied = false;
     private String llStatus = "IDLE";
+
+    private double sotmVgoalX = goalx;
+    private double sotmVgoalY = goaly;
 
     public static Follower follower;
     @IgnoreConfigurable
@@ -306,9 +312,13 @@ public class V2BLUE extends DbzOpMode {
             return;
         }
 
-        if (visionCooldown.seconds() < visionCooldownSec) {
-            llStatus = "COOLDOWN";
-            return;
+        if (!readInProgress) {
+            if (visionCooldown.seconds() < visionCooldownSec) {
+                llStatus = "COOLDOWN";
+                return;
+            }
+            queueIndex = 0;
+            readInProgress = true;
         }
 
         LLResult result = limelight.getLatestResult();
@@ -323,28 +333,8 @@ public class V2BLUE extends DbzOpMode {
 
         llValid = true;
 
-        double llX = 72 - (botpose.getPosition().x * 39.3701);
-        double llY = 72 + (botpose.getPosition().y * 39.3701);
-
-        double thetaCamera = robotHeadingRad + turretAngleRad;
-        double camFieldX = 0;
-        double camFieldY = 0;
-        double turretFieldX = 0;
-        double turretFieldY = 0;
-        double robotX = llX - camFieldX - turretFieldX;
-        double robotY = llY - camFieldY - turretFieldY;
-
-        double rawPedroX = robotY + xoffset;
-        double rawPedroY = robotX + yoffset;
-
-        if (!readInProgress) {
-            if (visionCooldown.seconds() < visionCooldownSec) {
-                llStatus = "COOLDOWN";
-                return;
-            }
-            queueIndex = 0;
-            readInProgress = true;
-        }
+        double rawPedroX = 72 + (botpose.getPosition().y * 39.3701) + xoffset;
+        double rawPedroY = 72 - (botpose.getPosition().x * 39.3701) + yoffset;
 
         queuedX[queueIndex] = rawPedroX;
         queuedY[queueIndex] = rawPedroY;
@@ -436,12 +426,12 @@ public class V2BLUE extends DbzOpMode {
                     rpush.setPosition(lockpos - servooff);
                     intake.setPower(-1);
                 }
-                if (revtimer.seconds() >= 0.5){
+                if (revtimer.seconds() >= 0.5) {
                     intake.setPower(0);
                     lpush.setPosition(twitch);
                     rpush.setPosition(twitch - servooff);
                 }
-                if(revtimer.seconds() >= 0.7){
+                if (revtimer.seconds() >= 0.7) {
                     lpush.setPosition(lockpos);
                     rpush.setPosition(lockpos - servooff);
                 }
@@ -465,7 +455,8 @@ public class V2BLUE extends DbzOpMode {
         if (p == null) return;
         double maxvel = 1900;
         if (autohood) {
-            double dist = Math.hypot(goalx - p.getX(), goaly - p.getY());
+            Pose vgoal = virtualgoal(p);
+            double dist = Math.hypot(vgoal.getX() - p.getX(), vgoal.getY() - p.getY());
             hoodbase      = Math.max(0.0, Math.min(1.0, hooda * dist * dist + hoodb * dist + hoodc));
             targetvelocity = Math.max(-maxvel, Math.min(maxvel, vela * dist * dist + velb * dist + velc));
         } else {
@@ -492,7 +483,22 @@ public class V2BLUE extends DbzOpMode {
     }
 
     private Pose virtualgoal(Pose p) {
-        return new Pose(goalx, goaly, 0);
+        if (!sotmEnabled) return new Pose(goalx, goaly, 0);
+
+        com.pedropathing.math.Vector vel = follower.getVelocity();
+        double vx = vel != null ? vel.getXComponent() : 0.0;
+        double vy = vel != null ? vel.getYComponent() : 0.0;
+
+        if (Math.hypot(vx, vy) < sotmMinVel) return new Pose(goalx, goaly, 0);
+
+        double dist = Math.hypot(goalx - p.getX(), goaly - p.getY());
+        double tflight = timea * dist * dist + timeb * dist + timec;
+        double ttotal  = tflight + sotmDelay;
+
+        sotmVgoalX = goalx - vx * ttotal;
+        sotmVgoalY = goaly - vy * ttotal;
+
+        return new Pose(sotmVgoalX, sotmVgoalY, 0);
     }
 
     private void shootfast() {
@@ -679,6 +685,9 @@ public class V2BLUE extends DbzOpMode {
         telemetry.addData("d1", d1.getVoltage());
         telemetry.addData("d2", d2.getVoltage());
 
+        telemetry.addData("sotm enabled", sotmEnabled);
+        telemetry.addData("sotm vgoal x", sotmVgoalX);
+        telemetry.addData("sotm vgoal y", sotmVgoalY);
 
         telemetry.addData("ll status", llStatus);
         telemetry.addData("ll valid", llValid);
