@@ -38,7 +38,7 @@ public class V2BLUE extends DbzOpMode {
     public static double servooff = 0.035;
     public static double push0 = 0.85, push1 = 0.67, push2 = 0.47, push3 = 0.22;
     public static double lockpos = 0.71;
-    public static double twitch = 0.76;
+    public static double twitch = 0.8;
 
     public static double sticky = 0.15;
 
@@ -46,8 +46,8 @@ public class V2BLUE extends DbzOpMode {
     public static double holdopen = 0.8, holdclose = 0.467;
     public static double dthresh = 0.17, dthresh1 = 0.193, dthresh2 = 0.175;
     public static double dipamt = 0.0, dipdelay = 0.1, dipdur = 0.5;
-    public static double vela = -0.0157003, velb = 11.6092, velc = 727.08688;
-    public static double hooda = -0.0000876693, hoodb = 0.0228448, hoodc = -0.779915;
+    public static double vela = 0.062424, velb = -2.42173, velc = 1188.9064;
+    public static double hooda = -0.000110521, hoodb = 0.0268284, hoodc = -1.09928;
     public static double timea = 0.00002, timeb = 0.004, timec = 0.25;
     public static double goalx = 0, goaly = 144;
     public static double manualvel = 0, hooddefault = 0.5;
@@ -55,8 +55,10 @@ public class V2BLUE extends DbzOpMode {
     public static double tzero = 192;
     public static double tkp = 0.033, tki = 0.0, tkd = 0.0012;
     public static double tdead = 0.0, tmax = 1.0, tks = 0.015, tffdead = 0.0, toff = 2.0;
-    public static double bangff = 1;
-    public static double bang2ff = 1.8;
+    public static double vkF = 0.000185;
+    public static double vkBBThresh = 50.0;
+    public static double vkVConst = 12.0;
+    public static double vkVelMult = 1.0;
 
     public static boolean visionRelocalizeEnabled = true;
     public static double visionTaMin = 0.05;
@@ -77,6 +79,7 @@ public class V2BLUE extends DbzOpMode {
     public static boolean sotmEnabled = true;
     public static double sotmDelay = 0.1;
     public static double sotmMinVel = 1.5;
+    public static double sotmScale = 1.0;
 
     protected Servo rpush, lpush, hood, hold, blinkin;
     protected DcMotorEx intake, fly1, fly2, turret;
@@ -426,19 +429,15 @@ public class V2BLUE extends DbzOpMode {
                     rpush.setPosition(lockpos - servooff);
                     intake.setPower(-1);
                 }
-                if (revtimer.seconds() >= 0.5) {
-                    intake.setPower(0);
+                if (revtimer.seconds() >= 0.5 && !shoot) {
+                    intake.setPower(1);
                     lpush.setPosition(twitch);
                     rpush.setPosition(twitch - servooff);
                 }
-                if (revtimer.seconds() >= 0.7) {
+                if (revtimer.seconds() >= 0.85 && !shoot) {
+                    intake.setPower(1);
                     lpush.setPosition(lockpos);
                     rpush.setPosition(lockpos - servooff);
-                }
-                if (revtimer.seconds() >= 3.0) {
-                    intake.setPower(0);
-                    lpush.setPosition(push0);
-                    rpush.setPosition(push0 - servooff);
                     ballstate = BallState.LOCKED;
                 }
                 break;
@@ -495,8 +494,8 @@ public class V2BLUE extends DbzOpMode {
         double tflight = timea * dist * dist + timeb * dist + timec;
         double ttotal  = tflight + sotmDelay;
 
-        sotmVgoalX = goalx - vx * ttotal;
-        sotmVgoalY = goaly - vy * ttotal;
+        sotmVgoalX = goalx - vx * ttotal * sotmScale;
+        sotmVgoalY = goaly - vy * ttotal * sotmScale;
 
         return new Pose(sotmVgoalX, sotmVgoalY, 0);
     }
@@ -564,6 +563,7 @@ public class V2BLUE extends DbzOpMode {
         boolean lb = gamepad1.left_bumper;
 
         if (shoot)      { intake.setPower(0);  lastrb = rb; lastlb = lb; return; }
+        if (ballstate == BallState.REVERSING) { lastrb = rb; lastlb = lb; return; }
         if (ballslocked){ intake.setPower(-1); lastrb = rb; lastlb = lb; return; }
 
         if (rb && !lastrb) { intakefwd = !intakefwd; intakerev = false; }
@@ -634,13 +634,21 @@ public class V2BLUE extends DbzOpMode {
             fly1.setPower(0); fly2.setPower(0); velontarget = false; return;
         }
 
-        double maxvel = fly2.getMotorType().getMaxRPM() * fly2.getMotorType().getTicksPerRev() / 60.0;
-        double batv   = Math.max(10.5, vsensor.getVoltage());
-        double ff     = bangff * (targetvelocity / maxvel) * (12.0 / batv);
-        double bb     = flycurrent < targetvelocity ? 1.0 : 0.0;
-        double power  = Math.min(1.0, bb + ff);
+        double ticksPerRev = fly2.getMotorType().getTicksPerRev();
+        double rpm = (flycurrent * 60.0 / ticksPerRev) * vkVelMult;
+        double targetRpm = (targetvelocity * 60.0 / ticksPerRev) * vkVelMult;
+        double vt = vkVConst / Math.max(10.5, vsensor.getVoltage());
 
-        fly1.setPower(power); fly2.setPower(power);
+        double power;
+        if (rpm < targetRpm - vkBBThresh) {
+            power = 1.0 * vt;
+        } else {
+            power = vkF * targetRpm * vt;
+        }
+        power = Math.min(1.0, Math.max(0.0, power));
+
+        fly1.setPower(power);
+        fly2.setPower(power);
         velontarget = Math.abs(targetvelocity - flycurrent) < 40.0;
     }
 
@@ -699,6 +707,8 @@ public class V2BLUE extends DbzOpMode {
         telemetry.addData("ll cooldown", String.format("%.2f", visionCooldown.seconds()));
         telemetry.addData("ll turret vel deg/s", String.format("%.2f", turretVelocityDegS));
         telemetry.addData("ll rot vel rad/s", String.format("%.3f", rotVelocityRadS));
+        telemetry.addData("x", follower.getPose().getX());
+        telemetry.addData("y", follower.getPose().getY());
     }
 
     @Override public void opLoopHook() {}
