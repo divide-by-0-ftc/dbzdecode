@@ -48,6 +48,8 @@ public class V2BLUE extends DbzOpMode {
     public static double dipamt = 0.0, dipdelay = 0.1, dipdur = 0.5;
     public static double vela = 0.062424, velb = -2.42173, velc = 1188.9064;
     public static double hooda = -0.000110521, hoodb = 0.0268284, hoodc = -1.09928;
+    // public static double vela = -0.0157003, velb = 11.6092, velc = 727.08688;
+    //    public static double hooda = -0.0000876693, hoodb = 0.0228448, hoodc = -0.779915;
     public static double timea = 0.00002, timeb = 0.004, timec = 0.25;
     public static double goalx = 0, goaly = 144;
     public static double manualvel = 0, hooddefault = 0.5;
@@ -494,8 +496,10 @@ public class V2BLUE extends DbzOpMode {
         double tflight = timea * dist * dist + timeb * dist + timec;
         double ttotal  = tflight + sotmDelay;
 
-        sotmVgoalX = goalx - vx * ttotal * sotmScale;
-        sotmVgoalY = goaly - vy * ttotal * sotmScale;
+//        sotmVgoalX = goalx - vx * ttotal * sotmScale;
+//        sotmVgoalY = goaly - vy * ttotal * sotmScale;
+        sotmVgoalX = goalx;
+        sotmVgoalY = goaly ;
 
         return new Pose(sotmVgoalX, sotmVgoalY, 0);
     }
