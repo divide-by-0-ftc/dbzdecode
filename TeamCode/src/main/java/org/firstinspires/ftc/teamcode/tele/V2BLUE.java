@@ -124,6 +124,7 @@ public class V2BLUE extends DbzOpMode {
     private double targetvelocity = 0.0;
     private double turretoffset  = 0.0;
     private double lastlightpos  = -1;
+    public static double bangff = 1.0;
     private double targetdeg = 0.0, currentdeg = 0.0;
     private double flytarget = 0.0, flycurrent = 0.0;
 
@@ -631,28 +632,26 @@ public class V2BLUE extends DbzOpMode {
     }
 
     private void runflywheel() {
-        flytarget  = targetvelocity;
+        flytarget = targetvelocity;
         flycurrent = fly2.getVelocity();
 
         if (Math.abs(targetvelocity) <= 1.0) {
-            fly1.setPower(0); fly2.setPower(0); velontarget = false; return;
+            fly1.setPower(0);
+            fly2.setPower(0);
+            velontarget = false;
+            return;
         }
 
-        double ticksPerRev = fly2.getMotorType().getTicksPerRev();
-        double rpm = (flycurrent * 60.0 / ticksPerRev) * vkVelMult;
-        double targetRpm = (targetvelocity * 60.0 / ticksPerRev) * vkVelMult;
-        double vt = vkVConst / Math.max(10.5, vsensor.getVoltage());
+        double maxvel = fly2.getMotorType().getMaxRPM() * fly2.getMotorType().getTicksPerRev() / 60.0;
+        double batv = Math.max(10.5, vsensor.getVoltage());
 
-        double power;
-        if (rpm < targetRpm - vkBBThresh) {
-            power = 1.0 * vt;
-        } else {
-            power = vkF * targetRpm * vt;
-        }
-        power = Math.min(1.0, Math.max(0.0, power));
+        double power = bangff * (Math.abs(targetvelocity) / maxvel) * (12.0 / batv);
+
+        power = Math.max(0.0, Math.min(1.0, power));
 
         fly1.setPower(power);
         fly2.setPower(power);
+
         velontarget = Math.abs(targetvelocity - flycurrent) < 40.0;
     }
 
