@@ -5,7 +5,6 @@ import static org.firstinspires.ftc.teamcode.auton.Tuning.drawOnlyCurrent;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.bylazar.configurables.PanelsConfigurables;
 import com.bylazar.configurables.annotations.IgnoreConfigurable;
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -33,68 +32,69 @@ public class V2BLUE extends DbzOpMode {
     private enum TurretState { NORMAL, CENTERING }
     private enum BallState { IDLE, REVERSING, LOCKED }
 
-    public static double targetx = 0, targety = 144;
-    public static double shot1 = 300, shot2 = 600, shotret = 1000;
-    boolean hasShot = false;
-    public static double servooff = 0.035;
     public static double push0 = 0.85, push1 = 0.67, push2 = 0.47, push3 = 0.22;
-    public static double lockpos = 0.71, twitch = 0.8, sticky = 0.15;
-
-    public static double faroffset = 200;
+    public static double lockpos = 0.71, twitch = 0.8, servooff = 0.035;
+    public static double shot1 = 300, shot2 = 600, shotret = 1000;
     public static double holdopen = 0.8, holdclose = 0.467;
+    public static double hooddefault = 0.5;
+    public static double dipamt = 0.05, dipdelay = 0.1, dipdur = 0.5;
+
     public static double dthresh = 0.17, dthresh1 = 0.193, dthresh2 = 0.175;
-    public static double dipamt = 0.0, dipdelay = 0.1, dipdur = 0.5;
+    public static double sticky = 0.15;
 
     public static double vela = 0.062424, velb = -2.42173, velc = 1188.9064;
     public static double hooda = -0.000110521, hoodb = 0.0268284, hoodc = -1.09928;
+    public static double manualvel = 0;
     public static double timea = 0.00002, timeb = 0.004, timec = 0.25;
 
     public static double goalx = 0, goaly = 144;
-    public static double manualvel = 0, hooddefault = 0.5;
-    public static double thresh = 220, thresh2 = 180, tzero = 192;
 
-    public static double tkp = 0.033, tki = 0.0, tkd = 0.0012;
-    public static double tdead = 0.0, tmax = 1.0, tks = 0.015, tffdead = 0.0, toff = 2.0;
+    public static double tkp = 0.03, tkd = 0.0015, tkv = 0.003, tks =0.0, tffdead = 0.0;
+    public static double tdead = 0.0, tmax = 1.0, toff = 2.0;
+    public static double thresh = 140, thresh2 = 140, tzero = 191;
+    public static double turretVelAlpha = 0.2;
 
-    public static double vkF = 0.000185, vkBBThresh = 50.0, vkVConst = 12.0, vkVelMult = 1.0;
+    public static double vkF = 0.0002, vkBBThresh = 50.0, vkVConst = 10.0;
 
-    public static boolean visionRelocalizeEnabled = true;
-    public static double visionTaMin = 0.05, visionMaxJump = 40.0, visionCooldownSec = 1.5;
-    public static double outlierThreshold = 4.0;
-    public static double maxRelocalizeVelocity = 2.0, maxRotVelocity = 1.0, maxTurretVelocity = 5.0;
+    public static double sotmDelay = 0.1, sotmMinVel = 1.5, sotmScale = 0.2;
+    public static double sotmVelAlpha = 0.3, sotmAccAlpha = 0.15;
+
+    public static double brakeWait = 0, brakeShootDelay = 0.0;
+    public static double brakePower = -0.3;
+
+    public static boolean llEnabled = true;
+    public static double llTaMin = 0.05, llMaxJump = 40.0, llCooldown = 1.5;
+    public static double llOutlier = 4.0;
+    public static double llMaxDriveV = 2.0, llMaxRotV = 1.0, llMaxTurretV = 5.0;
     public static double xoffset = 0.0, yoffset = 6.0;
-    public static double turretOffsetX = -35.0 * 0.03937, turretOffsetY = 0.0;
-    public static double camOffsetX = 158.37973 * 0.03937, camOffsetY = 0.0;
-
-    public static double brakeWait = 0.10, brakeShootDelay = 0.01;
 
     protected Servo rpush, lpush, hood, hold, blinkin;
     protected DcMotorEx intake, fly1, fly2, turret;
     protected DcMotorEx fl, fr, bl, br;
     private VoltageSensor vsensor;
     private AnalogInput tenc, d0, d1, d2;
-    private PIDController tpid;
     private Limelight3A limelight;
 
-    private final ElapsedTime intaketimer   = new ElapsedTime();
-    private final ElapsedTime detecttimer   = new ElapsedTime();
-    private final ElapsedTime diptimer      = new ElapsedTime();
-    private final ElapsedTime holdtimer     = new ElapsedTime();
-    private final ElapsedTime revtimer      = new ElapsedTime();
-    private final ElapsedTime braketimer    = new ElapsedTime();
-    private final ElapsedTime st0           = new ElapsedTime();
-    private final ElapsedTime st1           = new ElapsedTime();
-    private final ElapsedTime st2           = new ElapsedTime();
-    private final ElapsedTime visionCooldown = new ElapsedTime();
+    private final ElapsedTime intaketimer = new ElapsedTime();
+    private final ElapsedTime detecttimer = new ElapsedTime();
+    private final ElapsedTime diptimer = new ElapsedTime();
+    private final ElapsedTime holdtimer = new ElapsedTime();
+    private final ElapsedTime revtimer = new ElapsedTime();
+    private final ElapsedTime braketimer = new ElapsedTime();
+    private final ElapsedTime st0 = new ElapsedTime();
+    private final ElapsedTime st1 = new ElapsedTime();
+    private final ElapsedTime st2 = new ElapsedTime();
+    private final ElapsedTime llCoolTimer = new ElapsedTime();
+    private final ElapsedTime turretDt = new ElapsedTime();
 
     private TurretState turretstate = TurretState.NORMAL;
-    private BallState ballstate     = BallState.IDLE;
+    private BallState ballstate = BallState.IDLE;
 
-    private boolean shoot = false, lastshoot = false;
+    private boolean shoot = false, lastshoot = false, hasShot = false;
     private boolean fastmode = true;
     private boolean autohood = true, lasta = false;
     private boolean aiming = true, lastaim = false;
-    private boolean sotmActive = false;
+    private boolean sotmActive = false, lastsotm = false;
     private boolean intakefwd = false, intakerev = false;
     private boolean lastlb = false, lastrb = false;
     private boolean lastr1 = false, lastl1 = false;
@@ -105,28 +105,34 @@ public class V2BLUE extends DbzOpMode {
     private boolean dipping = false, dipdone = false;
     private boolean turretontarget = false, velontarget = false;
     private boolean braking = false;
+    private boolean lastBrakingState = false;
     private Pose brakepose = null;
 
-    private double holdposition  = holdclose;
-    private double hoodbase      = hooddefault;
-    private double targetvelocity = 0.0;
-    private double turretoffset  = 0.0;
-    private double lastlightpos  = -1;
-    private double targetdeg = 0.0, currentdeg = 0.0;
-    private double flytarget = 0.0, flycurrent = 0.0;
+    private double holdpos = holdclose;
+    private double hoodbase = hooddefault;
+    private double targetvelocity = 0;
+    private double turretoffset = 0;
+    private double lastlightpos = -1;
+    private double targetdeg = 0, currentdeg = 0;
+    private double flytarget = 0, flycurrent = 0;
+    private double lastTurretErr = 0;
+    private double cachedTurretDeg = 0;
+    private double prevTargetDeg = 0;
+    private double filteredDesiredTurretVel = 0;
 
-    private static final int QUEUE_SIZE = 3;
-    private final double[] queuedX = new double[3];
-    private final double[] queuedY = new double[3];
-    private int queueIndex = 0;
-    private boolean readInProgress = false;
+    private double svx = 0, svy = 0, sax = 0, say = 0;
+    private double lastVx = 0, lastVy = 0;
+    private long lastSotmMs = 0;
 
-    private double lastTurretAngleDeg = 0, lastHeadingRad = 0;
-    private long lastVisionTimeMs = 0;
-    private double turretVelocityDegS = 0, rotVelocityRadS = 0;
-
-    private double llPedroX = 0.0, llPedroY = 0.0;
-    private double llTa = 0.0, llPoseJump = 0.0;
+    private static final int LL_QUEUE = 3;
+    private final double[] qX = new double[LL_QUEUE];
+    private final double[] qY = new double[LL_QUEUE];
+    private int qIdx = 0;
+    private boolean qActive = false;
+    private double llLastTurretDeg = 0, llLastHeadingRad = 0;
+    private long llLastTimeMs = 0;
+    private double llTurretVelDeg = 0, llRotVelRad = 0;
+    private double llX = 0, llY = 0, llTa = 0, llJump = 0;
     private boolean llValid = false, llApplied = false;
     private String llStatus = "IDLE";
 
@@ -136,93 +142,86 @@ public class V2BLUE extends DbzOpMode {
 
     @Override
     public void opInit() {
-        rpush   = hardwareMap.get(Servo.class, "rightpushServo");
-        lpush   = hardwareMap.get(Servo.class, "leftpushServo");
-        hood    = hardwareMap.get(Servo.class, "hoodServo");
-        hold    = hardwareMap.get(Servo.class, "holdServo");
+        rpush = hardwareMap.get(Servo.class, "rightpushServo");
+        lpush = hardwareMap.get(Servo.class, "leftpushServo");
+        hood = hardwareMap.get(Servo.class, "hoodServo");
+        hold = hardwareMap.get(Servo.class, "holdServo");
         blinkin = hardwareMap.get(Servo.class, "light");
 
         d0 = hardwareMap.get(AnalogInput.class, "distancez");
         d1 = hardwareMap.get(AnalogInput.class, "distance1");
         d2 = hardwareMap.get(AnalogInput.class, "distance2");
 
-        hoodbase = hooddefault;
         hood.setPosition(hoodbase);
-        holdposition = holdclose;
-        hold.setPosition(holdposition);
+        hold.setPosition(holdpos);
         lpush.setPosition(push0);
         rpush.setPosition(push0 - servooff);
 
         intake = robot.intakeMotor;
-        fly1   = robot.outtake1Motor;
-        fly2   = robot.outtake2Motor;
-
-        fl = hardwareMap.get(DcMotorEx.class, "frontLeft");
-        fr = hardwareMap.get(DcMotorEx.class, "frontRight");
-        bl = hardwareMap.get(DcMotorEx.class, "backLeft");
-        br = hardwareMap.get(DcMotorEx.class, "backRight");
+        fly1 = robot.outtake1Motor;
+        fly2 = robot.outtake2Motor;
 
         fly1.setDirection(DcMotorEx.Direction.REVERSE);
         fly2.setDirection(DcMotorEx.Direction.FORWARD);
         fly1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         fly2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
-        telemetry = new com.acmerobotics.dashboard.telemetry.MultipleTelemetry(
-                telemetry, FtcDashboard.getInstance().getTelemetry());
-        telemetrym = PanelsTelemetry.INSTANCE.getTelemetry();
-
-        tpid = new PIDController(tkp, tki, tkd);
-        tpid.setTolerance(1.0);
-
-        vsensor = hardwareMap.voltageSensor.iterator().next();
+        fl = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        fr = hardwareMap.get(DcMotorEx.class, "frontRight");
+        bl = hardwareMap.get(DcMotorEx.class, "backLeft");
+        br = hardwareMap.get(DcMotorEx.class, "backRight");
 
         turret = hardwareMap.get(DcMotorEx.class, DbzHardwareMap.Motor.turret.getName());
         turret.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         turret.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         turret.setDirection(DcMotorEx.Direction.FORWARD);
-
         tenc = hardwareMap.get(AnalogInput.class, "turretEncoder");
 
-        follower = ConstantsTele.createFollower(hardwareMap);
-        follower.setStartingPose(org.firstinspires.ftc.teamcode.tele.PoseCache.lastPose);
+        vsensor = hardwareMap.voltageSensor.iterator().next();
+
+        telemetry = new com.acmerobotics.dashboard.telemetry.MultipleTelemetry(
+                telemetry, FtcDashboard.getInstance().getTelemetry());
+        telemetrym = PanelsTelemetry.INSTANCE.getTelemetry();
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(0);
         limelight.setPollRateHz(100);
         limelight.start();
+        follower = ConstantsTele.createFollower(hardwareMap);
+        follower.setStartingPose(PoseCache.lastPose);
 
-        visionCooldown.reset();
-        lastVisionTimeMs = System.currentTimeMillis();
+        llCoolTimer.reset();
+        llLastTimeMs = System.currentTimeMillis();
+        lastSotmMs = System.currentTimeMillis();
+        turretDt.reset();
 
         PanelsConfigurables.INSTANCE.refreshClass(this);
         follower.update();
         follower.update();
-
         if (follower.getCurrentPath() != null) drawOnlyCurrent();
         follower.startTeleopDrive();
     }
 
     @Override
     public void opLoop() {
-        updatelights();
-
         boolean abtn = gamepad1.a;
         if (abtn && !lasta) autohood = !autohood;
         lasta = abtn;
 
         boolean dpadup2 = gamepad2.dpad_up;
         boolean dpaddn2 = gamepad2.dpad_down;
-        if (dpadup2 && !lastdpadup2) { holdoverride = true; holdposition = holdopen; }
-        if (dpaddn2 && !lastdpaddn2) { holdoverride = true; holdposition = holdclose; }
+        if (dpadup2 && !lastdpadup2) { holdoverride = true; holdpos = holdopen; }
+        if (dpaddn2 && !lastdpaddn2) { holdoverride = true; holdpos = holdclose; }
         lastdpadup2 = dpadup2;
         lastdpaddn2 = dpaddn2;
 
-        boolean rb2 = gamepad1.dpad_right;
-        boolean lb2 = gamepad1.dpad_left;
-        if (rb2 && !lastr1) turretoffset -= toff;
-        if (lb2 && !lastl1) turretoffset += toff;
-        lastr1 = rb2;
-        lastl1 = lb2;
+        if (gamepad1.dpad_right && !lastr1) turretoffset -= toff;
+        if (gamepad1.dpad_left && !lastl1) turretoffset += toff;
+        lastr1 = gamepad1.dpad_right;
+        lastl1 = gamepad1.dpad_left;
+
+        boolean sotmbtn = gamepad1.dpad_down;
+        if (sotmbtn && !lastsotm) sotmActive = !sotmActive;
+        lastsotm = sotmbtn;
 
         double mult = gamepad1.left_trigger > 0.1 ? 0.3 : 1.0;
         boolean trig = dbzGamepad1.right_trigger > 0.1;
@@ -233,12 +232,15 @@ public class V2BLUE extends DbzOpMode {
             braketimer.reset();
         }
 
-        if (braking || shoot) {
+        if (braking) {
             fl.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
             fr.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
             bl.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
             br.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-            fl.setPower(0); fr.setPower(0); bl.setPower(0); br.setPower(0);
+            fl.setPower(0);
+            fr.setPower(0);
+            bl.setPower(0);
+            br.setPower(0);
         } else {
             fl.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
             fr.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
@@ -253,29 +255,32 @@ public class V2BLUE extends DbzOpMode {
         }
 
         follower.update();
-        updateVisionRelocalization();
+        cachedTurretDeg = (tenc.getVoltage() / tenc.getMaxVoltage()) * 360.0 - tzero;
+        cachedTurretDeg = wrapasym(cachedTurretDeg, thresh);
 
+        if (dbzGamepad1.x) {
+            follower.setPose(new Pose(15, 111, Math.toRadians(90)));
+            turretoffset = 0;
+        }
+
+        if (dbzGamepad1.y) {
+            follower.setPose(new Pose(9.76378, 8.661, Math.toRadians(0)));
+            turretoffset = 0;
+        }
+
+        updateVision();
         regressions();
-        dipshot();
         runballdetection();
         shootfast();
         activeintake();
         updatehold();
-
-        Pose p = follower.getPose();
-        if (p != null) {
-            double dist = Math.hypot(goalx - p.getX(), goaly - p.getY());
-            telemetrym.addData("dist", dist);
-            if (dist > 125) targetvelocity += faroffset;
-        } else {
-            telemetrym.addData("Pose", "NULL");
-        }
-
-        if (dbzGamepad1.x) { follower.setPose(new Pose(15, 111, Math.toRadians(90))); turretoffset = 0; }
-        if (dbzGamepad1.y) { follower.setPose(new Pose(9.76378, 8.661, Math.toRadians(0))); turretoffset = 0; }
-
+        dipshot();
         aim();
         runflywheel();
+        updatelights();
+
+        Pose p = follower.getPose();
+        if (p != null) telemetrym.addData("dist", Math.hypot(goalx - p.getX(), goaly - p.getY()));
 
         if (follower.getCurrentPath() != null) draw();
         sendtelem();
@@ -283,99 +288,141 @@ public class V2BLUE extends DbzOpMode {
         telemetry.update();
     }
 
-    private void updateVisionRelocalization() {
-        llValid = false; llApplied = false; llTa = 0.0;
+    private void updateVision() {
+        llValid = false;
+        llApplied = false;
+        llTa = 0;
 
-        Pose current = follower.getPose();
-        if (current == null || limelight == null) { llStatus = "NO_POSE"; return; }
+        Pose cur = follower.getPose();
+        if (cur == null) {
+            llStatus = "NO_POSE";
+            return;
+        }
 
-        double robotHeadingRad = current.getHeading();
-        double turretAngleRad  = Math.toRadians(getturretdeg());
 
+
+        double turretAngleRad = Math.toRadians(getturretdeg() - 180.0);
+        double robotHeadingRad = cur.getHeading();
         limelight.updateRobotOrientation(Math.toDegrees(robotHeadingRad + turretAngleRad) + 90.0);
 
+
         long now = System.currentTimeMillis();
-        double dt = (now - lastVisionTimeMs) / 1000.0;
+        double dt = (now - llLastTimeMs) / 1000.0;
         if (dt > 0) {
-            turretVelocityDegS = (getturretdeg() - lastTurretAngleDeg) / dt;
-            rotVelocityRadS    = (robotHeadingRad - lastHeadingRad) / dt;
+            llTurretVelDeg = (getturretdeg() - llLastTurretDeg) / dt;
+
+            llRotVelRad = (robotHeadingRad - llLastHeadingRad) / dt;
         }
-        lastTurretAngleDeg = getturretdeg();
-        lastHeadingRad     = robotHeadingRad;
-        lastVisionTimeMs   = now;
+
+        llLastTurretDeg = getturretdeg();
+        llLastHeadingRad = robotHeadingRad;
+        llLastTimeMs = now;
 
         com.pedropathing.math.Vector vel = follower.getVelocity();
-        double driveVel = vel != null ? Math.hypot(vel.getXComponent(), vel.getYComponent()) : 0.0;
+        double driveV = vel != null ? Math.hypot(vel.getXComponent(), vel.getYComponent()) : 0;
 
-        boolean motionOk = Math.abs(driveVel) <= maxRelocalizeVelocity
-                && Math.abs(rotVelocityRadS) <= maxRotVelocity
-                && Math.abs(turretVelocityDegS) <= maxTurretVelocity;
+        boolean moving = driveV > llMaxDriveV
+                || Math.abs(llRotVelRad) > llMaxRotV
+                || Math.abs(llTurretVelDeg) > llMaxTurretV;
 
-        if (!motionOk) {
-            readInProgress = false; queueIndex = 0;
-            llStatus = "MOVING"; return;
+        if (moving) {
+            qActive = false;
+            qIdx = 0;
+            llStatus = "MOVING";
+            return;
         }
 
-        if (!readInProgress) {
-            if (visionCooldown.seconds() < visionCooldownSec) { llStatus = "COOLDOWN"; return; }
-            queueIndex = 0; readInProgress = true;
+        if (!qActive) {
+            if (llCoolTimer.seconds() < llCooldown) {
+                llStatus = "COOLDOWN";
+                return;
+            }
+            qIdx = 0;
+            qActive = true;
         }
 
-        LLResult result = limelight.getLatestResult();
-        if (result == null || !result.isValid()) { llStatus = "NO_RESULT"; return; }
-        if (result.getFiducialResults() == null || result.getFiducialResults().isEmpty()) { llStatus = "NO_TAG"; return; }
 
-        llTa = result.getTa();
-        if (llTa < visionTaMin) { llStatus = "LOW_TA"; return; }
+        LLResult res = limelight.getLatestResult();
+        if (res == null || !res.isValid()) {
+            llStatus = "NO_RESULT";
+            return;
+        }
 
-        Pose3D botpose = result.getBotpose_MT2();
-        if (botpose == null) { llStatus = "NO_MT2"; return; }
+        if (res.getFiducialResults() == null || res.getFiducialResults().isEmpty()) {
+            llStatus = "NO_TAG";
+            return;
+        }
+
+        llTa = res.getTa();
+        if (llTa < llTaMin) {
+            llStatus = "LOW_TA";
+            return;
+        }
+
+        Pose3D bp = res.getBotpose_MT2();
+        if (bp == null) {
+            llStatus = "NO_MT2";
+            return;
+        }
 
         llValid = true;
-        double rawPedroX = 72 + (botpose.getPosition().y * 39.3701) + xoffset;
-        double rawPedroY = 72 - (botpose.getPosition().x * 39.3701) + yoffset;
+        qX[qIdx] = 72 + (bp.getPosition().y * 39.3701) + xoffset;
+        qY[qIdx] = 72 - (bp.getPosition().x * 39.3701) + yoffset;
+        qIdx++;
 
-        queuedX[queueIndex] = rawPedroX;
-        queuedY[queueIndex] = rawPedroY;
-        queueIndex++;
+        if (qIdx < LL_QUEUE) {
+            llStatus = "COLLECTING " + qIdx + "/" + LL_QUEUE;
+            return;
+        }
 
-        if (queueIndex < QUEUE_SIZE) { llStatus = "COLLECTING " + queueIndex + "/" + QUEUE_SIZE; return; }
+        qActive = false;
+        qIdx = 0;
 
-        readInProgress = false; queueIndex = 0;
+        double e0 = Math.hypot(qX[0] - (qX[1] + qX[2]) / 2.0, qY[0] - (qY[1] + qY[2]) / 2.0);
+        double e1 = Math.hypot(qX[1] - (qX[0] + qX[2]) / 2.0, qY[1] - (qY[0] + qY[1]) / 2.0);
+        double e2 = Math.hypot(qX[2] - (qX[0] + qX[1]) / 2.0, qY[2] - (qY[0] + qY[1]) / 2.0);
 
-        double d0 = hypot2d(queuedX[0] - midX(1,2), queuedY[0] - midY(1,2));
-        double d1 = hypot2d(queuedX[1] - midX(0,2), queuedY[1] - midY(0,2));
-        double d2 = hypot2d(queuedX[2] - midX(0,1), queuedY[2] - midY(0,1));
+        if (Math.max(e0, Math.max(e1, e2)) > llOutlier) {
+            llStatus = "OUTLIER";
+            return;
+        }
 
-        if (Math.max(d0, Math.max(d1, d2)) > outlierThreshold) { llStatus = "OUTLIER"; return; }
+        llX = (qX[0] + qX[1] + qX[2]) / 3.0;
+        llY = (qY[0] + qY[1] + qY[2]) / 3.0;
+        llJump = Math.hypot(llX - cur.getX(), llY - cur.getY());
 
-        llPedroX = (queuedX[0] + queuedX[1] + queuedX[2]) / 3.0;
-        llPedroY = (queuedY[0] + queuedY[1] + queuedY[2]) / 3.0;
-        llPoseJump = Math.hypot(llPedroX - current.getX(), llPedroY - current.getY());
+        if (!llEnabled) {
+            llStatus = "DISABLED";
+            return;
+        }
 
-        if (!visionRelocalizeEnabled) { llStatus = "DISABLED"; return; }
-        if (llPoseJump > visionMaxJump) { llStatus = "JUMP_" + String.format("%.1f", llPoseJump); return; }
+        if (llJump > llMaxJump) {
+            llStatus = "JUMP_" + String.format("%.1f", llJump);
+            return;
+        }
 
-        follower.setPose(new Pose(llPedroX, llPedroY, current.getHeading()));
-        llApplied = true; llStatus = "APPLIED";
-        visionCooldown.reset();
-    }
 
-    private double midX(int a, int b) { return (queuedX[a] + queuedX[b]) / 2.0; }
-    private double midY(int a, int b) { return (queuedY[a] + queuedY[b]) / 2.0; }
-    private double hypot2d(double dx, double dy) { return Math.hypot(dx, dy); }
-
-    private void updatelights() {
-        if (blinkin == null) return;
-        double pos = ballslocked ? 0.722 : (intakerev ? 0.277 : 0.0);
-        pos = Math.round(pos * 1000.0) / 1000.0;
-        if (Math.abs(lastlightpos - pos) > 0.001) { blinkin.setPosition(pos); lastlightpos = pos; }
+        follower.setPose(new Pose(llX, llY, cur.getHeading()));
+        llApplied = true;
+        llStatus = "APPLIED";
+        llCoolTimer.reset();
     }
 
     private void runballdetection() {
-        if (d0.getVoltage() < dthresh)  { latch0 = true; st0.reset(); }
-        if (d1.getVoltage() < dthresh1) { latch1 = true; st1.reset(); }
-        if (d2.getVoltage() < dthresh2) { latch2 = true; st2.reset(); }
+        if (d0.getVoltage() < dthresh) {
+            latch0 = true;
+            st0.reset();
+        }
+
+        if (d1.getVoltage() < dthresh1) {
+            latch1 = true;
+            st1.reset();
+        }
+
+        if (d2.getVoltage() < dthresh2) {
+            latch2 = true;
+            st2.reset();
+        }
 
         if (st0.seconds() > sticky) latch0 = false;
         if (st1.seconds() > sticky) latch1 = false;
@@ -386,33 +433,59 @@ public class V2BLUE extends DbzOpMode {
         switch (ballstate) {
             case IDLE:
                 if (hit && !shoot) {
-                    if (!prevdetect) { detecttimer.reset(); prevdetect = true; }
+                    if (!prevdetect) {
+                        detecttimer.reset();
+                        prevdetect = true;
+                    }
+
                     if (detecttimer.seconds() >= 0.2) {
                         latch0 = latch1 = latch2 = false;
-                        holdoverride = false; holdposition = holdclose;
-                        lpush.setPosition(lockpos); rpush.setPosition(lockpos - servooff);
-                        intake.setPower(-1); revtimer.reset();
-                        ballstate = BallState.REVERSING; prevdetect = false; ballslocked = true;
+                        holdoverride = false;
+                        holdpos = holdclose;
+                        lpush.setPosition(lockpos);
+                        rpush.setPosition(lockpos - servooff);
+                        intake.setPower(-1);
+                        revtimer.reset();
+                        ballstate = BallState.REVERSING;
+                        prevdetect = false;
+                        ballslocked = true;
                     }
-                } else if (!hit) { prevdetect = false; ballslocked = false; }
+                } else if (!hit) {
+                    prevdetect = false;
+                    ballslocked = false;
+                }
                 break;
 
             case REVERSING:
-                holdoverride = false; holdposition = holdclose;
+                holdoverride = false;
+                holdpos = holdclose;
+
                 if (!shoot && revtimer.seconds() < 0.5) {
-                    lpush.setPosition(lockpos); rpush.setPosition(lockpos - servooff); intake.setPower(-1);
+                    lpush.setPosition(lockpos);
+                    rpush.setPosition(lockpos - servooff);
+                    intake.setPower(-1);
                 }
+
                 if (revtimer.seconds() >= 0.5 && !shoot) {
-                    intake.setPower(1); lpush.setPosition(twitch); rpush.setPosition(twitch - servooff);
+                    intake.setPower(1);
+                    lpush.setPosition(twitch);
+                    rpush.setPosition(twitch - servooff);
                 }
+
                 if (revtimer.seconds() >= 0.85 && !shoot) {
-                    intake.setPower(1); lpush.setPosition(lockpos); rpush.setPosition(lockpos - servooff);
+                    intake.setPower(1);
+                    lpush.setPosition(lockpos);
+                    rpush.setPosition(lockpos - servooff);
                     ballstate = BallState.LOCKED;
                 }
                 break;
 
             case LOCKED:
-                if (!shoot) { lpush.setPosition(lockpos); rpush.setPosition(lockpos - servooff); }
+                if (!shoot) {
+                    lpush.setPosition(lockpos);
+                    rpush.setPosition(lockpos - servooff);
+                }
+
                 if (shoot) intake.setPower(1);
                 break;
         }
@@ -421,128 +494,200 @@ public class V2BLUE extends DbzOpMode {
     private void regressions() {
         Pose p = follower.getPose();
         if (p == null) return;
-        double maxvel = 1900;
-        if (autohood) {
-            Pose vgoal = virtualgoal(p);
-            double dist = Math.hypot(vgoal.getX() - p.getX(), vgoal.getY() - p.getY());
-            hoodbase       = Math.max(0.0, Math.min(1.0, hooda * dist * dist + hoodb * dist + hoodc));
-            targetvelocity = Math.max(-maxvel, Math.min(maxvel, vela * dist * dist + velb * dist + velc));
-        } else {
-            hoodbase = hooddefault; targetvelocity = manualvel;
+
+        if (!autohood) {
+            hoodbase = hooddefault;
+            targetvelocity = manualvel;
+            return;
         }
+
+        Pose vg = virtualgoal(p);
+        double dist = Math.hypot(vg.getX() - p.getX(), vg.getY() - p.getY());
+
+        double[] lutD = {60.3, 70.5, 80.0, 90.0, 98.0, 105.0, 111.0};
+        double[] lutH = {0.50, 0.67, 0.70, 0.71, 0.72,  0.73,  0.73};
+        double[] lutV = {2050, 2380, 2430, 2530, 2600,  2650,  2650};
+
+        int i = 0;
+        while (i < lutD.length - 2 && dist > lutD[i + 1]) i++;
+        double t = (dist - lutD[i]) / (lutD[i + 1] - lutD[i]);
+        t = Math.max(0, Math.min(1, t));
+        hoodbase = Math.max(0.5, lutH[i] + t * (lutH[i + 1] - lutH[i]));
+        targetvelocity = Math.max(2000, lutV[i] + t * (lutV[i + 1] - lutV[i]));
     }
 
     private void dipshot() {
-        if (shoot && !dipping && !dipdone) { dipping = true; diptimer.reset(); }
-        if (!shoot) { dipping = false; dipdone = false; hood.setPosition(hoodbase); return; }
+        if (shoot && !dipping && !dipdone) {
+            dipping = true;
+            diptimer.reset();
+        }
+
+        if (!shoot) {
+            dipping = false;
+            dipdone = false;
+            hood.setPosition(hoodbase);
+            return;
+        }
+
         if (dipping) {
             double t = diptimer.seconds();
+
             if (t < dipdelay) {
                 hood.setPosition(hoodbase);
             } else if (t < dipdelay + dipdur) {
                 hood.setPosition(Math.max(0.0, hoodbase - dipamt));
             } else {
-                hood.setPosition(hoodbase); dipping = false; dipdone = true;
+                hood.setPosition(hoodbase);
+                dipping = false;
+                dipdone = true;
             }
         }
     }
 
-    public static double sotmDelay = 0.1, sotmMinVel = 1.5, sotmScale = 1.0;
-
     private Pose virtualgoal(Pose p) {
-        if (!sotmActive) return new Pose(goalx, goaly, 0);
-
         com.pedropathing.math.Vector vel = follower.getVelocity();
-        com.pedropathing.math.Vector acc = follower.getAcceleration();
-        double vx = vel != null ? vel.getXComponent() : 0.0;
-        double vy = vel != null ? vel.getYComponent() : 0.0;
-        double ax = acc != null ? acc.getXComponent() : 0.0;
-        double ay = acc != null ? acc.getYComponent() : 0.0;
+        double rawVx = vel != null ? vel.getXComponent() : 0;
+        double rawVy = vel != null ? vel.getYComponent() : 0;
 
-        if (Math.hypot(vx, vy) < sotmMinVel) return new Pose(goalx, goaly, 0);
+        long now = System.currentTimeMillis();
+        double dt = (now - lastSotmMs) / 1000.0;
 
-        double dist    = Math.hypot(goalx - p.getX(), goaly - p.getY());
-        double tflight = timea * dist * dist + timeb * dist + timec;
-        double ttotal  = tflight + sotmDelay;
+        if (lastSotmMs > 0 && dt > 0 && dt < 0.1) {
+            sax = sax * (1 - sotmAccAlpha) + ((rawVx - lastVx) / dt) * sotmAccAlpha;
+            say = say * (1 - sotmAccAlpha) + ((rawVy - lastVy) / dt) * sotmAccAlpha;
+        }
 
-        double vgoalX = goalx - (vx * ttotal + 0.5 * ax * ttotal * ttotal) * sotmScale;
-        double vgoalY = goaly - (vy * ttotal + 0.5 * ay * ttotal * ttotal) * sotmScale;
+        svx = svx * (1 - sotmVelAlpha) + rawVx * sotmVelAlpha;
+        svy = svy * (1 - sotmVelAlpha) + rawVy * sotmVelAlpha;
+        lastVx = rawVx;
+        lastVy = rawVy;
+        lastSotmMs = now;
 
-        return new Pose(vgoalX, vgoalY, 0);
+        if (!sotmActive || Math.hypot(svx, svy) < sotmMinVel) return new Pose(goalx, goaly, 0);
+
+        double dist1 = Math.hypot(goalx - p.getX(), goaly - p.getY());
+        double tTotal = timea * dist1 * dist1 + timeb * dist1 + timec + sotmDelay;
+
+        double vgX = goalx - (svx * tTotal + 0.5 * sax * tTotal * tTotal) * sotmScale;
+        double vgY = goaly - (svy * tTotal + 0.5 * say * tTotal * tTotal) * sotmScale;
+
+        double dist2 = Math.hypot(vgX - p.getX(), vgY - p.getY());
+        tTotal = timea * dist2 * dist2 + timeb * dist2 + timec + sotmDelay;
+
+        vgX = goalx - (svx * tTotal + 0.5 * sax * tTotal * tTotal) * sotmScale;
+        vgY = goaly - (svy * tTotal + 0.5 * say * tTotal * tTotal) * sotmScale;
+
+        return new Pose(vgX, vgY, 0);
     }
 
     private void fireShot() {
-        boolean had3      = ballslocked;
+        boolean had3 = ballslocked;
         boolean holdready = hold.getPosition() >= holdopen - 0.01;
+        ballslocked = false;
+        holdoverride = false;
+        intaketimer.reset();
+        shoot = true;
+        dipping = false;
+        dipdone = false;
+
         if (!fastmode) {
-            holdoverride = false; holdposition = holdclose;
-            intaketimer.reset(); shoot = true; ballslocked = false; dipping = false; dipdone = false;
-            if (had3 && !holdready) { holdwait = true; holdtimer.reset(); }
-            else { holdwait = false; lpush.setPosition(push1); rpush.setPosition(push1 - servooff); intaketimer.reset(); }
+            holdpos = holdclose;
+            if (had3 && !holdready) {
+                holdwait = true;
+                holdtimer.reset();
+            } else {
+                holdwait = false;
+                lpush.setPosition(push1);
+                rpush.setPosition(push1 - servooff);
+                intaketimer.reset();
+            }
         } else {
-            ballslocked = false; holdoverride = false; holdposition = holdopen;
-            intaketimer.reset(); shoot = true; dipping = false; dipdone = false;
-            if (had3 && !holdready) { holdwait = true; holdtimer.reset(); }
-            else { holdwait = false; lpush.setPosition(push3); rpush.setPosition(push3 - servooff); intaketimer.reset(); }
+            holdpos = holdopen;
+            if (had3 && !holdready) {
+                holdwait = true;
+                holdtimer.reset();
+            } else {
+                holdwait = false;
+                lpush.setPosition(push3);
+                rpush.setPosition(push3 - servooff);
+                intaketimer.reset();
+            }
         }
     }
 
     private void shootfast() {
         boolean trig = dbzGamepad1.right_trigger > 0.1;
 
-        if (braking && !shoot) {
-
+        if (braking) {
             if (!hasShot && braketimer.seconds() >= brakeShootDelay) {
                 fireShot();
-                hasShot = true;   // prevents second shot
+                hasShot = true;
             }
 
             if (braketimer.seconds() >= brakeWait) {
                 braking = false;
-                hasShot = false;  // reset for next time
+                hasShot = false;
+                follower.startTeleopDrive();
             }
         }
 
         if (!fastmode) {
-            if (shoot && holdwait) {
-                if (holdtimer.milliseconds() >= 200) {
-                    holdwait = false; lpush.setPosition(push1); rpush.setPosition(push1 - servooff); intaketimer.reset();
-                }
-            } else if (shoot) {
-                if (intaketimer.milliseconds() > shotret) {
-                    lpush.setPosition(push0); rpush.setPosition(push0 - servooff);
-                    holdposition = holdclose; shoot = false; resetshot();
-                } else if (intaketimer.milliseconds() > shot2) {
-                    lpush.setPosition(push3); rpush.setPosition(push3 - servooff);
-                } else if (intaketimer.milliseconds() > shot1) {
-                    lpush.setPosition(push2); rpush.setPosition(push2 - servooff);
+            if (shoot && holdwait && holdtimer.milliseconds() >= 200) {
+                holdwait = false;
+                lpush.setPosition(push1);
+                rpush.setPosition(push1 - servooff);
+                intaketimer.reset();
+            } else if (shoot && !holdwait) {
+                double ms = intaketimer.milliseconds();
+
+                if (ms > shotret) {
+                    lpush.setPosition(push0);
+                    rpush.setPosition(push0 - servooff);
+                    holdpos = holdclose;
+                    shoot = false;
+                    resetshot();
+                } else if (ms > shot2) {
+                    lpush.setPosition(push3);
+                    rpush.setPosition(push3 - servooff);
+                } else if (ms > shot1) {
+                    lpush.setPosition(push2);
+                    rpush.setPosition(push2 - servooff);
                 }
             }
         } else {
-            if (shoot && holdwait) {
-                if (holdtimer.milliseconds() >= 200) {
-                    holdwait = false; lpush.setPosition(push3); rpush.setPosition(push3 - servooff); intaketimer.reset();
-                }
-            } else if (shoot && intaketimer.milliseconds() > 500) {
-                lpush.setPosition(push0); rpush.setPosition(push0 - servooff);
-                holdposition = holdclose; shoot = false; resetshot();
+            if (shoot && holdwait && holdtimer.milliseconds() >= 200) {
+                holdwait = false;
+                lpush.setPosition(push3);
+                rpush.setPosition(push3 - servooff);
+                intaketimer.reset();
+            } else if (shoot && !holdwait && intaketimer.milliseconds() > 500) {
+                lpush.setPosition(push0);
+                rpush.setPosition(push0 - servooff);
+                holdpos = holdclose;
+                shoot = false;
+                resetshot();
             }
+
             if (!shoot && !braking) intaketimer.reset();
         }
 
         lastshoot = trig;
         telemetry.addData("fastmode", fastmode);
-        telemetry.addData("holdwait", holdwait);
         telemetry.addData("braking", braking);
-        telemetry.addData("brake timer", String.format("%.2f", braketimer.seconds()));
+        telemetry.addData("brake t", String.format("%.2f", braketimer.seconds()));
     }
 
     private void resetshot() {
-        ballslocked = false; ballstate = BallState.IDLE;
-        holdoverride = false; holdposition = holdclose; holdwait = false;
-        lpush.setPosition(push0); rpush.setPosition(push0 - servooff);
-        intakefwd = true; intakerev = false; intake.setPower(1);
-        brakepose = null;
+        ballslocked = false;
+        ballstate = BallState.IDLE;
+        holdoverride = false;
+        holdpos = holdclose;
+        holdwait = false;
+        lpush.setPosition(push0);
+        rpush.setPosition(push0 - servooff);
+        intakefwd = true;
+        intakerev = false;
+        intake.setPower(1);
         follower.startTeleopDrive();
     }
 
@@ -550,145 +695,209 @@ public class V2BLUE extends DbzOpMode {
         boolean rb = gamepad1.right_bumper;
         boolean lb = gamepad1.left_bumper;
 
-        if (shoot)                              { intake.setPower(0);  lastrb = rb; lastlb = lb; return; }
-        if (ballstate == BallState.REVERSING)   { lastrb = rb; lastlb = lb; return; }
-        if (ballslocked)                        { intake.setPower(-1); lastrb = rb; lastlb = lb; return; }
+        if (shoot) {
+            intake.setPower(0);
+            lastrb = rb;
+            lastlb = lb;
+            return;
+        }
 
-        if (rb && !lastrb) { intakefwd = !intakefwd; intakerev = false; }
-        if (lb && !lastlb) { intakerev = !intakerev; intakefwd = false; }
+        if (ballstate == BallState.REVERSING) {
+            lastrb = rb;
+            lastlb = lb;
+            return;
+        }
+
+        if (ballslocked) {
+            intake.setPower(-1);
+            lastrb = rb;
+            lastlb = lb;
+            return;
+        }
+
+        if (rb && !lastrb) {
+            intakefwd = !intakefwd;
+            intakerev = false;
+        }
+
+        if (lb && !lastlb) {
+            intakerev = !intakerev;
+            intakefwd = false;
+        }
 
         intake.setPower(intakefwd ? 1 : intakerev ? -1 : 0);
-        if (!ballslocked && !shoot) { lpush.setPosition(push0); rpush.setPosition(push0 - servooff); }
-        lastrb = rb; lastlb = lb;
+
+        if (!ballslocked && !shoot) {
+            lpush.setPosition(push0);
+            rpush.setPosition(push0 - servooff);
+        }
+
+        lastrb = rb;
+        lastlb = lb;
     }
 
     private void updatehold() {
         if (!holdoverride) {
             if (shoot) {
-                holdposition = holdopen;
+                holdpos = holdopen;
             } else if (ballstate == BallState.REVERSING) {
-                holdposition = revtimer.seconds() >= 0.5 ? holdopen : holdclose;
+                holdpos = revtimer.seconds() >= 0.5 ? holdopen : holdclose;
             } else if (ballstate == BallState.LOCKED) {
-                holdposition = holdopen;
+                holdpos = holdopen;
             }
         }
-        hold.setPosition(holdposition);
+
+        hold.setPosition(holdpos);
     }
 
     private void aim() {
         boolean aimBtn = gamepad1.dpad_up;
-        if (aimBtn && !lastaim) { aiming = !aiming; tpid.reset(); }
+        if (aimBtn && !lastaim) {
+            aiming = !aiming;
+            lastTurretErr = 0;
+            prevTargetDeg = getturretdeg();
+            filteredDesiredTurretVel = 0;
+            turretDt.reset();
+        }
         lastaim = aimBtn;
-        sotmActive = aimBtn;
 
-        double tgtangle;
+
+        double tgt;
         if (!aiming) {
-            turretstate = TurretState.NORMAL; tgtangle = 0.0;
+            turretstate = TurretState.NORMAL; tgt = 0;
         } else {
-            double clamped = clampturret();
-            switch (turretstate) {
-                case NORMAL:
-                    if (Math.abs(clamped - getturretdeg()) <= thresh) { tgtangle = clamped; }
-                    else { turretstate = TurretState.CENTERING; tgtangle = 0.0; }
-                    break;
-                case CENTERING:
-                    tgtangle = 0.0;
-                    if (Math.abs(getturretdeg()) < 5.0) turretstate = TurretState.NORMAL;
-                    break;
-                default:
-                    tgtangle = 0.0; turretstate = TurretState.NORMAL; break;
-            }
+            tgt = clampturret();
         }
 
+
         double cur = getturretdeg();
-        targetdeg = tgtangle; currentdeg = cur;
-        double err = wrapangle(tgtangle - cur);
+        targetdeg = tgt;
+        currentdeg = cur;
+
+        double err = wrapangle(tgt - cur);
         turretontarget = Math.abs(err) < 2.0;
 
-        if (Math.abs(err) <= tdead) { turret.setPower(0); return; }
+        double dt = turretDt.seconds();
+        turretDt.reset();
+        if (dt <= 0 || dt > 0.5) dt = 0.02;
 
-        tpid.setPID(tkp, tki, tkd);
-        double out = tpid.calculate(cur, tgtangle);
-        double ff  = Math.abs(err) > tffdead ? Math.copySign(tks, err) : 0.0;
-        turret.setPower(Math.max(-tmax, Math.min(tmax, out + ff)));
+        double rawDesiredVel = wrapangle(tgt - prevTargetDeg) / dt;
+        filteredDesiredTurretVel = filteredDesiredTurretVel * (1.0 - turretVelAlpha) + rawDesiredVel * turretVelAlpha;
+        double desiredVel = filteredDesiredTurretVel;
+
+        if (Math.abs(err) <= tdead) {
+            prevTargetDeg = tgt;
+            lastTurretErr = err;
+            turret.setPower(0);
+            return;
+        }
+
+        double errDiff = wrapangle(err - lastTurretErr);
+        double feedback = tkp * err + tkd * (errDiff / dt);
+        double staticFF = Math.abs(desiredVel) > 1e-6 && Math.abs(err) > tffdead ? Math.copySign(tks, desiredVel) : 0.0;
+        double velocityFF = tkv * desiredVel;
+        double out = feedback + staticFF + velocityFF;
+
+        lastTurretErr = err;
+        prevTargetDeg = tgt;
+
+        turret.setPower(Math.max(-tmax, Math.min(tmax, out)));
     }
 
     private void runflywheel() {
-        flytarget  = targetvelocity;
+        flytarget = targetvelocity;
         flycurrent = fly2.getVelocity();
 
-        if (Math.abs(targetvelocity) <= 1.0) {
-            fly1.setPower(0); fly2.setPower(0); velontarget = false; return;
+        if (flytarget <= 1.0) {
+            fly1.setPower(0);
+            fly2.setPower(0);
+            velontarget = false;
+            return;
         }
 
-        double ticksPerRev = fly2.getMotorType().getTicksPerRev();
-        double rpm         = (flycurrent * 60.0 / ticksPerRev) * vkVelMult;
-        double targetRpm   = (targetvelocity * 60.0 / ticksPerRev) * vkVelMult;
-        double vt          = vkVConst / Math.max(10.5, vsensor.getVoltage());
-
-        double power = rpm < targetRpm - vkBBThresh ? 1.0 * vt : vkF * targetRpm * vt;
+        double vt = vkVConst / Math.max(10.5, vsensor.getVoltage());
+        double power = flycurrent < flytarget - vkBBThresh ? vt : vkF * flytarget * vt;
         power = Math.min(1.0, Math.max(0.0, power));
 
-        fly1.setPower(power); fly2.setPower(power);
-        velontarget = Math.abs(targetvelocity - flycurrent) < 40.0;
+        fly1.setPower(power);
+        fly2.setPower(power);
+        velontarget = Math.abs(flytarget - flycurrent) < 40.0;
     }
 
     private double getturretdeg() {
-        double angle = (tenc.getVoltage() / tenc.getMaxVoltage()) * 360.0 - tzero;
-        return wrapasym(angle, thresh);
+        return cachedTurretDeg;
     }
 
     private double getdesiredturretdeg() {
         Pose p = follower.getPose();
         if (p == null) return getturretdeg();
-        Pose vgoal = virtualgoal(p);
-        double fieldangle = Math.atan2(vgoal.getY() - p.getY(), vgoal.getX() - p.getX());
-        return wrapasym(Math.toDegrees(fieldangle - p.getHeading()) + turretoffset, thresh);
+
+        Pose vg = virtualgoal(p);
+        double fieldangle = Math.atan2(vg.getY() - p.getY(), vg.getX() - p.getX());
+        return wrapasym(Math.toDegrees(fieldangle - p.getHeading()) + 180 + turretoffset, thresh);
     }
 
     private double clampturret() {
-        double d = wrapasym(getdesiredturretdeg(), thresh);
-        if (d > thresh2) return thresh2;
-        if (d < -thresh) return -thresh;
+        double d = wrapangle(getdesiredturretdeg());
+        if (d > thresh2)  return thresh2;
+        if (d < -thresh)  return -thresh;
         return d;
     }
 
-    private double wrapangle(double a)          { return ((a + 180) % 360 + 360) % 360 - 180; }
-    private double wrapasym(double a, double n) { return ((a + n)   % 360 + 360) % 360 - n; }
+    private void updatelights() {
+        if (blinkin == null) return;
+
+        double pos = ballslocked ? 0.722 : (intakerev ? 0.277 : 0.0);
+        pos = Math.round(pos * 1000.0) / 1000.0;
+
+        if (Math.abs(lastlightpos - pos) > 0.001) {
+            blinkin.setPosition(pos);
+            lastlightpos = pos;
+        }
+    }
+
+    private double wrapangle(double a) {
+        return ((a + 180) % 360 + 360) % 360 - 180;
+    }
+
+    private double wrapasym(double a, double n) {
+        return ((a + n) % 360 + 360) % 360 - n;
+    }
 
     private void sendtelem() {
-        telemetry.addData("target degrees",   targetdeg);
-        telemetry.addData("current degrees",  currentdeg);
-        telemetry.addData("turret error",     wrapangle(targetdeg - currentdeg));
-        telemetry.addData("turret on target", turretontarget);
-        telemetry.addData("intake current",   String.format("%.2f", intake.getCurrent(CurrentUnit.AMPS)));
-        telemetry.addData("flywheel target",  flytarget);
-        telemetry.addData("flywheel current", flycurrent);
-        telemetry.addData("flywheel error",   flytarget - flycurrent);
-        telemetry.addData("on target",        velontarget);
-        telemetry.addData("hold pos",         holdposition);
-        telemetry.addData("hold override",    holdoverride);
-        telemetry.addData("hold state",       ballstate);
-
+        telemetry.addData("turret target", targetdeg);
+        telemetry.addData("turret current", currentdeg);
+        telemetry.addData("turret error", wrapangle(targetdeg - currentdeg));
+        telemetry.addData("turret ontarget", turretontarget);
+        telemetry.addData("fly target", flytarget);
+        telemetry.addData("fly current", flycurrent);
+        telemetry.addData("fly error", flytarget - flycurrent);
+        telemetry.addData("fly ontarget", velontarget);
+        telemetry.addData("hood", hoodbase);
+        telemetry.addData("hold", holdpos);
+        telemetry.addData("ball state", ballstate);
+        telemetry.addData("sotm", sotmActive);
+        telemetry.addData("intake A", String.format("%.2f", intake.getCurrent(CurrentUnit.AMPS)));
         telemetry.addData("d0", d0.getVoltage());
         telemetry.addData("d1", d1.getVoltage());
         telemetry.addData("d2", d2.getVoltage());
+        telemetry.addData("ll status", llStatus);
+        telemetry.addData("ll ta", llTa);
+        telemetry.addData("ll x", llX);
+        telemetry.addData("ll y", llY);
+        telemetry.addData("ll jump", llJump);
+        telemetry.addData("turret desired vel", filteredDesiredTurretVel);
 
-
-        telemetry.addData("ll status",      llStatus);
-        telemetry.addData("ll valid",       llValid);
-        telemetry.addData("ll applied",     llApplied);
-        telemetry.addData("ll ta",          llTa);
-        telemetry.addData("ll pedro x",     llPedroX);
-        telemetry.addData("ll pedro y",     llPedroY);
-        telemetry.addData("ll pose jump",   llPoseJump);
-        telemetry.addData("ll cooldown",    String.format("%.2f", visionCooldown.seconds()));
-        telemetry.addData("ll turret vel",  String.format("%.2f", turretVelocityDegS));
-        telemetry.addData("ll rot vel",     String.format("%.3f", rotVelocityRadS));
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
+        Pose p = follower.getPose();
+        if (p != null) {
+            telemetry.addData("x", p.getX());
+            telemetry.addData("y", p.getY());
+        }
     }
 
-    @Override public void opLoopHook() {}
-    @Override public void opTeardown() {}
+    @Override
+    public void opLoopHook() {}
+
+    @Override
+    public void opTeardown() {}
 }
