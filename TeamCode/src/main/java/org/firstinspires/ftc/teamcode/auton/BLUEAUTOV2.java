@@ -26,7 +26,7 @@ public class BLUEAUTOV2 extends DbzOpMode {
     public static double push0 = 0.81, push3 = 0.22;
     public static double lockpos = 0.71;
     public static double holdopen = 0.8, holdclose = 0.467;
-    public static double hooddefault = 0.5;
+    public static double hooddefault = 0.3;
 
     public static double tzero = 194.5;
     public static double tkp = 0.03, tki = 0.0, tkd = 0.005;
@@ -39,24 +39,136 @@ public class BLUEAUTOV2 extends DbzOpMode {
     public static double startx = 144 - 114.2417, starty = 133.472;
 
     public static class Paths {
-        public PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11, Path12, Path13;
+        public PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7,
+                Path8, Path9, Path10, Path11, Path12, Path13,
+                Path14, Path15;
+
 
         public Paths(Follower f) {
-            Path1 = f.pathBuilder().addPath(new BezierLine(new Pose(144-111.417, 136.815), new Pose(144-98.149, 83.168))).setTangentHeadingInterpolation().build();
-            Path2 = f.pathBuilder().addPath(new BezierCurve(new Pose(144-98.149, 83.168), new Pose(144-110.518, 62.028), new Pose(144-130.642, 58.482))).setTangentHeadingInterpolation().build();
-            Path3 = f.pathBuilder().addPath(new BezierLine(new Pose(144-130.642, 58.482), new Pose(144-97.149, 77.168))).setTangentHeadingInterpolation().setReversed().build();
-            Path4 = f.pathBuilder().addPath(new BezierCurve(new Pose(144-97.149, 77.168), new Pose(144-110.990, 60.361), new Pose(gatex, gatey))).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180-gateh)).build();
-            Path5 = f.pathBuilder().addPath(new BezierCurve(new Pose(gatex, gatey), new Pose(144-110.990, 60.361), new Pose(144-97.149, 77.168))).setLinearHeadingInterpolation(Math.toRadians(180-gateh), Math.toRadians(180)).build();
-            Path6 = f.pathBuilder().addPath(new BezierCurve(new Pose(144-97.149, 77.168), new Pose(144-110.990, 60.361), new Pose(gatex, gatey))).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180-gateh)).build();
-            Path7 = f.pathBuilder().addPath(new BezierCurve(new Pose(gatex, gatey), new Pose(144-110.990, 60.361), new Pose(144-97.149, 77.168))).setLinearHeadingInterpolation(Math.toRadians(180-gateh), Math.toRadians(180)).build();
-            Path8 = f.pathBuilder().addPath(new BezierCurve(new Pose(144-97.149, 77.168), new Pose(144-110.990, 60.361), new Pose(gatex, gatey))).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180-gateh)).build();
-            Path9 = f.pathBuilder().addPath(new BezierCurve(new Pose(gatex, gatey), new Pose(144-110.990, 60.361), new Pose(144-97.149, 84.566))).setLinearHeadingInterpolation(Math.toRadians(180-gateh), Math.toRadians(180)).build();
-            Path10 = f.pathBuilder().addPath(new BezierLine(new Pose(144-97.149, 84.566), new Pose(144-128.573, 84.566))).setTangentHeadingInterpolation().build();
-            Path11 = f.pathBuilder().addPath(new BezierLine(new Pose(144-128.573, 84.566), new Pose(144-95.149, 84.168))).setTangentHeadingInterpolation().setReversed().build();
-            Path12 = f.pathBuilder().addPath(new BezierCurve(new Pose(144-95.149, 84.168), new Pose(144-110.251, 40.730), new Pose(144-138.546, 28.591))).setTangentHeadingInterpolation().build();
-            Path13 = f.pathBuilder().addPath(new BezierLine(new Pose(144-138.546, 28.591), new Pose(144-96.5, 112))).setTangentHeadingInterpolation().setReversed().build();
+            Path1 = f.pathBuilder()
+                    .addPath(new BezierLine(
+                            new Pose(144 - 111.417, 136.815),
+                            new Pose(144 - 98.149,   83.168)))
+                    .setTangentHeadingInterpolation().build();
+
+
+            Path2 = f.pathBuilder()
+                    .addPath(new BezierCurve(
+                            new Pose(144 - 98.149,  83.168),
+                            new Pose(144 - 110.518, 62.028),
+                            new Pose(144 - 130.642, 58.482)))
+                    .setTangentHeadingInterpolation().build();
+
+
+            Path3 = f.pathBuilder()
+                    .addPath(new BezierLine(
+                            new Pose(144 - 130.642, 58.482),
+                            new Pose(144 - 97.149,  77.168)))
+                    .setTangentHeadingInterpolation().setReversed().build();
+
+
+            Path4 = f.pathBuilder()
+                    .addPath(new BezierCurve(
+                            new Pose(144 - 97.149,  77.168),
+                            new Pose(144 - 110.990, 60.361),
+                            new Pose(gatex, gatey)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180 - gateh)).build();
+
+
+            // Gate cycle 1 return: -5x, -5y from original (144-97.149, 77.168)
+            Path5 = f.pathBuilder()
+                    .addPath(new BezierCurve(
+                            new Pose(gatex, gatey),
+                            new Pose(144 - 110.990, 60.361),
+                            new Pose(144 - 102.149, 72.168)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180 - gateh), Math.toRadians(180)).build();
+
+
+            // Gate cycle 2 go: start matches Path5 end
+            Path6 = f.pathBuilder()
+                    .addPath(new BezierCurve(
+                            new Pose(144 - 102.149, 72.168),
+                            new Pose(144 - 110.990, 60.361),
+                            new Pose(gatex, gatey)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180 - gateh)).build();
+
+
+            // Gate cycle 2 return: -5x, -5y
+            Path7 = f.pathBuilder()
+                    .addPath(new BezierCurve(
+                            new Pose(gatex, gatey),
+                            new Pose(144 - 110.990, 60.361),
+                            new Pose(144 - 102.149, 72.168)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180 - gateh), Math.toRadians(180)).build();
+
+
+            // Gate cycle 3 go: start matches Path7 end
+            Path8 = f.pathBuilder()
+                    .addPath(new BezierCurve(
+                            new Pose(144 - 102.149, 72.168),
+                            new Pose(144 - 110.990, 60.361),
+                            new Pose(gatex, gatey)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180 - gateh)).build();
+
+
+            // Gate cycle 3 return: -5x, -5y
+            Path9 = f.pathBuilder()
+                    .addPath(new BezierCurve(
+                            new Pose(gatex, gatey),
+                            new Pose(144 - 110.990, 60.361),
+                            new Pose(144 - 102.149, 72.168)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180 - gateh), Math.toRadians(180)).build();
+
+
+            // 4th gate cycle go: start matches Path9 end
+            Path14 = f.pathBuilder()
+                    .addPath(new BezierCurve(
+                            new Pose(144 - 102.149, 72.168),
+                            new Pose(144 - 110.990, 60.361),
+                            new Pose(gatex, gatey)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180 - gateh)).build();
+
+
+            // 4th gate cycle return: -5x, -5y from original (144-97.149, 84.566)
+            Path15 = f.pathBuilder()
+                    .addPath(new BezierCurve(
+                            new Pose(gatex, gatey),
+                            new Pose(144 - 110.990, 60.361),
+                            new Pose(144 - 102.149, 79.566)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180 - gateh), Math.toRadians(180)).build();
+
+
+            // Path10 start matches Path15 end
+            Path10 = f.pathBuilder()
+                    .addPath(new BezierLine(
+                            new Pose(144 - 102.149, 79.566),
+                            new Pose(144 - 128.573, 84.566)))
+                    .setTangentHeadingInterpolation().build();
+
+
+            Path11 = f.pathBuilder()
+                    .addPath(new BezierLine(
+                            new Pose(144 - 128.573, 84.566),
+                            new Pose(144 - 95.149,  84.168)))
+                    .setTangentHeadingInterpolation().setReversed().build();
+
+
+            Path12 = f.pathBuilder()
+                    .addPath(new BezierCurve(
+                            new Pose(144 - 95.149,  84.168),
+                            new Pose(144 - 110.251, 40.730),
+                            new Pose(12, 28.591)))
+                    .setTangentHeadingInterpolation().build();
+
+
+            Path13 = f.pathBuilder()
+                    .addPath(new BezierLine(
+                            new Pose(12, 28.591),
+                            new Pose(144 - 96.5,   108.0)))
+                    .setTangentHeadingInterpolation().setReversed().build();
         }
     }
+
 
     protected Servo rpush, lpush, hood, hold, blinkin;
     protected DcMotorEx intake, fly1, fly2, turret;

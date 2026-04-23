@@ -39,8 +39,8 @@ public class BLUEV5 extends DbzOpMode {
     public static double lockpos = 0.71, twitch = 0.8, servooff = 0.035;
     public static double shot1 = 300, shot2 = 600, shotret = 1000;
     public static double holdopen = 0.8, holdclose = 0.467;
-    public static double hooddefault = 0.5;
-    public static double dipamt = 0.05, dipdelay = 0.1, dipdur = 0.5;
+    public static double hooddefault = 0.3;
+    public static double dipamt = 0.2, dipdelay = 0.1, dipdur = 0.5;
 
     public static double dthresh = 0.17, dthresh1 = 0.193, dthresh2 = 0.175;
     public static double sticky = 0.15;
@@ -59,7 +59,7 @@ public class BLUEV5 extends DbzOpMode {
     public static double thresh = 140, thresh2 = 140, tzero = 191;
     public static double turretVelAlpha = 0.2;
 
-    public static double vkF = 0.0002, vkBBThresh = 50.0, vkVConst = 12.0;
+    public static double vkF = 0.00038, vkBBThresh = 50.0, vkVConst = 12.0;
 
     public static double sotmDelay = 0.1, sotmMinVel = 1.5, sotmScale = 0.2;
     public static double sotmVelAlpha = 0.3, sotmAccAlpha = 0.15;
@@ -68,12 +68,15 @@ public class BLUEV5 extends DbzOpMode {
 
 
     public static double kSigmaD  = 0.002309;
+
+    public static double arch  = 0.2;
+    public static double arcv  = 0;
     public static double kSigmaLL = 25.9938;
     public static boolean llEnabled = true;
     public static double llTaMin = 0.05, llMaxJump = 40.0, llCooldown = 1.5;
     public static double llMaxDriveV = 2.0, llMaxRotV = 1.0, llMaxTurretV = 5.0;
     public static double xoffset = 0.0, yoffset = 6.0;
-    public static double sotg = 0.1;
+    public static double sotg = 0.25;
 
     protected Servo rpush, lpush, hood, hold, blinkin;
     protected DcMotorEx intake, fly1, fly2, turret;
@@ -448,8 +451,8 @@ public class BLUEV5 extends DbzOpMode {
         Pose p = follower.getPose();
         double dist = Math.hypot(cachedVgoal.getX() - p.getX(), cachedVgoal.getY() - p.getY());
 
-        hoodbase       = Math.max(0.5, lerp(lutD, lutH, dist));
-        targetvelocity = Math.max(2000, lerp(lutD, lutV, dist));
+        hoodbase       = (Math.max(0.5, lerp(lutD, lutH, dist))) - arch;
+        targetvelocity = (Math.max(2000, lerp(lutD, lutV, dist))) - arcv;
     }
 
 
