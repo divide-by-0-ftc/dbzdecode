@@ -40,7 +40,7 @@ public class BLUEV5 extends DbzOpMode {
     public static double shot1 = 300, shot2 = 600, shotret = 1000;
     public static double holdopen = 0.8, holdclose = 0.467;
     public static double hooddefault = 0.3;
-    public static double dipamt = 0.2, dipdelay = 0.1, dipdur = 0.5;
+    public static double dipamt = 0.1, dipdelay = 0.1, dipdur = 0.5;
 
     public static double dthresh = 0.17, dthresh1 = 0.193, dthresh2 = 0.175;
     public static double sticky = 0.15;
@@ -59,7 +59,7 @@ public class BLUEV5 extends DbzOpMode {
     public static double thresh = 140, thresh2 = 140, tzero = 191;
     public static double turretVelAlpha = 0.2;
 
-    public static double vkF = 0.00038, vkBBThresh = 50.0, vkVConst = 12.0;
+    public static double vkF = 0.0002, vkBBThresh = 50.0, vkVConst = 12.0;
 
     public static double sotmDelay = 0.1, sotmMinVel = 1.5, sotmScale = 0.2;
     public static double sotmVelAlpha = 0.3, sotmAccAlpha = 0.15;
@@ -475,27 +475,20 @@ public class BLUEV5 extends DbzOpMode {
         double rawVx = vel != null ? vel.getXComponent() : 0;
         double rawVy = vel != null ? vel.getYComponent() : 0;
 
-        long now = System.currentTimeMillis();
-        double dt = (now - lastSotmMs) / 1000.0;
-        if (lastSotmMs > 0 && dt > 0 && dt < 0.1) {
-            sax = sax*(1-sotmAccAlpha) + ((rawVx-lastVx)/dt)*sotmAccAlpha;
-            say = say*(1-sotmAccAlpha) + ((rawVy-lastVy)/dt)*sotmAccAlpha;
-        }
         svx = svx*(1-sotmVelAlpha) + rawVx*sotmVelAlpha;
         svy = svy*(1-sotmVelAlpha) + rawVy*sotmVelAlpha;
-        lastVx = rawVx; lastVy = rawVy; lastSotmMs = now;
 
         if (!sotmActive || Math.hypot(svx, svy) < sotmMinVel) return new Pose(goalx, goaly, 0);
 
         double dist1  = Math.hypot(goalx - p.getX(), goaly - p.getY());
         double tTotal = timea*dist1*dist1 + timeb*dist1 + timec + sotmDelay;
-        double vgX = goalx - (svx*tTotal + 0.5*sax*tTotal*tTotal)*sotmScale;
-        double vgY = goaly - (svy*tTotal + 0.5*say*tTotal*tTotal)*sotmScale;
+        double vgX = goalx - svx*tTotal*sotmScale;
+        double vgY = goaly - svy*tTotal*sotmScale;
 
         double dist2 = Math.hypot(vgX - p.getX(), vgY - p.getY());
         tTotal = timea*dist2*dist2 + timeb*dist2 + timec + sotmDelay;
-        vgX = goalx - (svx*tTotal + 0.5*sax*tTotal*tTotal)*sotmScale;
-        vgY = goaly - (svy*tTotal + 0.5*say*tTotal*tTotal)*sotmScale;
+        vgX = goalx - svx*tTotal*sotmScale;
+        vgY = goaly - svy*tTotal*sotmScale;
 
         return new Pose(vgX, vgY, 0);
     }

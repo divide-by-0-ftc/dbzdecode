@@ -27,13 +27,13 @@ public class Constants {
             .headingPIDFCoefficients(new PIDFCoefficients(1.0, 0, 0.01, 0.01))
 //            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.02, 0.16674500515578042, 0.0010742245751442295))
 //            .centripetalScaling(0)
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.02,0.0,0.00001,0.5,0.03));
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0.0,0.00001,0.5,0.03));
 
 
 
 
 
-    public static PathConstraints defaultConstraints = new PathConstraints(0.97, 0.1, 0.1, 0.007, 100, 1, 10, 1);
+    public static PathConstraints defaultConstraints = new PathConstraints(0.995, 0.1, 0.1, 0.007, 100, 1, 10, 1);
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
