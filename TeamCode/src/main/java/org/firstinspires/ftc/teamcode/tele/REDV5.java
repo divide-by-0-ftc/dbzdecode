@@ -30,8 +30,8 @@ import org.firstinspires.ftc.teamcode.extensions.DbzOpMode;
 import java.util.List;
 
 @Config
-@TeleOp(name = "BLUEV5")
-public class BLUEV5 extends DbzOpMode {
+@TeleOp(name = "REDV5")
+public class REDV5 extends DbzOpMode {
 
     private enum TurretState { NORMAL, CENTERING }
     private enum BallState   { IDLE, REVERSING, LOCKED }
@@ -41,25 +41,25 @@ public class BLUEV5 extends DbzOpMode {
     public static double shot1 = 300, shot2 = 600, shotret = 1000;
     public static double holdopen = 0.8, holdclose = 0.467;
     public static double hooddefault = 0.3;
-    public static double dipamt = 0.1, dipdelay = 0.1, dipdur = 1.5;
+    public static double dipamt = 0.00, dipdelay = 0.1, dipdur = 1.5;
 
     public static double dthresh = 0.16, dthresh1 = 0.163, dthresh2 = 0.175;
     public static double sticky = 0.15;
 
-    public static double[] lutD = {60.3,  70.5,  80.0,  90.0,  98.0, 105.0, 111.0};
-    public static double[] lutH = {0.50,  0.67,  0.70,  0.71,  0.72,  0.73,  0.73};
-    public static double[] lutV = {2050, 2380, 2430, 2530, 2600, 2650, 2650};
+    public static double[] lutD = {51.5,  60.9,  71.95,  80.3,  87.1,  97.1, 109.5};
+    public static double[] lutH = {0.10,  0.28,  0.40,   0.45,  0.50,  0.52,  0.55};
+    public static double[] lutV = {1270, 1400,  1470,   1520,  1560,  1630,  1730};
     public static double manualvel = 0;
     public static double timea = 0.00002, timeb = 0.004, timec = 0.25;
 
-    public static double goalx = 0, goaly = 144;
+    public static double goalx = 144, goaly = 144;
 
     public static double tkp = 0.03, tkd = 0.0015, tkv = 0.001, tks = 0.0, tffdead = 0.0;
     public static double tdead = 0.0, tmax = 1.0, toff = 2.0;
     public static double thresh = 140, thresh2 = 140, tzero = 191;
     public static double turretVelAlpha = 0.2;
 
-    public static double vkF = 0.0002, vkBBThresh = 50.0, vkVConst = 12.0;
+    public static double vkF = 0.00038, vkBBThresh = 50.0, vkVConst = 12;
 
     public static double sotmDelay = 0.1, sotmMinVel = 1.5, sotmScale = 0.2;
     public static double sotmVelAlpha = 0.3;
@@ -67,7 +67,7 @@ public class BLUEV5 extends DbzOpMode {
     public static double brakeWait = 0.3, brakeShootDelay = 0.0;
 
     public static double kSigmaD  = 0.002309;
-    public static double arch     = 0.2;
+    public static double arch     = 0.0;
     public static double arcv     = 0;
     public static double kSigmaLL = 25.9938;
     public static boolean llEnabled = true;
@@ -108,6 +108,7 @@ public class BLUEV5 extends DbzOpMode {
     private boolean intakefwd     = false, intakerev    = false;
     private boolean lastlb        = false, lastrb       = false;
     private boolean lastr1        = false, lastl1       = false;
+    private boolean lastr2        = false, lastl2      = false;
     private boolean lastdpadup2   = false, lastdpaddn2  = false;
     private boolean lastB         = false;
     private boolean lastB2        = false;
@@ -161,6 +162,8 @@ public class BLUEV5 extends DbzOpMode {
     @Override
     public void opInit() {
 
+
+
         rpush   = hardwareMap.get(Servo.class, "rightpushServo");
         lpush   = hardwareMap.get(Servo.class, "leftpushServo");
         hood    = hardwareMap.get(Servo.class, "hoodServo");
@@ -212,6 +215,8 @@ public class BLUEV5 extends DbzOpMode {
         follower = ConstantsTele.createFollower(hardwareMap);
         follower.setStartingPose(PoseCache.lastPose);
 
+
+
         llCoolTimer.reset();
         kDtTimer.reset();
         llLastTimeMs = System.currentTimeMillis();
@@ -239,17 +244,23 @@ public class BLUEV5 extends DbzOpMode {
         if (abtn && !lasta) autohood = !autohood;
         lasta = abtn;
 
-//        boolean dpadup2 = gamepad2.dpad_up;
-//        boolean dpaddn2 = gamepad2.dpad_down;
-//        if (dpadup2 && !lastdpadup2) { holdoverride = true; holdpos = holdopen; }
-//        if (dpaddn2 && !lastdpaddn2) { holdoverride = true; holdpos = holdclose; }
-//        lastdpadup2 = dpadup2;
-//        lastdpaddn2 = dpaddn2;
+        boolean dpadup2 = gamepad2.dpad_up;
+        boolean dpaddn2 = gamepad2.dpad_down;
+        if (dpadup2 && !lastdpadup2) { holdoverride = true; holdpos = holdopen; }
+        if (dpaddn2 && !lastdpaddn2) { holdoverride = true; holdpos = holdclose; }
+        lastdpadup2 = dpadup2;
+        lastdpaddn2 = dpaddn2;
 
-        if (gamepad2.dpad_right && !lastr1) turretoffset -= toff;
-        if (gamepad2.dpad_left  && !lastl1) turretoffset += toff;
-        lastr1 = gamepad2.dpad_right;
-        lastl1 = gamepad2.dpad_left;
+        if (gamepad1.dpad_right && !lastr1) turretoffset -= toff;
+        if (gamepad1.dpad_left  && !lastl1) turretoffset += toff;
+        lastr1 = gamepad1.dpad_right;
+        lastl1 = gamepad1.dpad_left;
+
+
+        if (gamepad2.dpad_right && !lastr2) turretoffset -= toff;
+        if (gamepad2.dpad_left  && !lastl2) turretoffset += toff;
+        lastr2 = gamepad2.dpad_right;
+        lastl2 = gamepad2.dpad_left;
 
         boolean b = gamepad1.b;
         if (b && !lastB) { slowShoot2 = !slowShoot2; slowStep = 0; slowReturning = false; if (!slowShoot2) { braking = false; follower.startTeleopDrive(); } }
@@ -317,7 +328,7 @@ public class BLUEV5 extends DbzOpMode {
 
         follower.update();
 
-        if (dbzGamepad1.x) { follower.setPose(new Pose(15.91160220994475, 78.76243093922652, Math.toRadians(180)));  turretoffset = 0; }
+        if (dbzGamepad1.x) { follower.setPose(new Pose(128.40883977900555, 78.76243093922652, Math.toRadians(180)));  turretoffset = 0; }
         if (dbzGamepad1.y) { follower.setPose(new Pose(9.76378, 8.661, Math.toRadians(0))); turretoffset = 0; }
 
         updateVision();
@@ -487,8 +498,10 @@ public class BLUEV5 extends DbzOpMode {
         Pose   p    = follower.getPose();
         double dist = Math.hypot(cachedVgoal.getX() - p.getX(), cachedVgoal.getY() - p.getY());
 
-        hoodbase       = Math.max(0.5, lerp(lutD, lutH, dist)) - arch;
-        targetvelocity = Math.max(2000, lerp(lutD, lutV, dist)) - arcv;
+        hoodbase       = Math.max(0.0, lerp(lutD, lutH, dist)) - arch;
+        targetvelocity = Math.max(1250, lerp(lutD, lutV, dist)) - arcv;
+
+        targetvelocity = Math.min(targetvelocity, 1750);
     }
 
 

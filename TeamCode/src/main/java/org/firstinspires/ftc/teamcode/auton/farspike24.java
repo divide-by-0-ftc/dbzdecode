@@ -15,13 +15,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.tele.PoseCache;
 import org.firstinspires.ftc.teamcode.extensions.DbzHardwareMap;
 import org.firstinspires.ftc.teamcode.extensions.DbzOpMode;
 
 @Config
-@Autonomous(name = "BLUEAUTOV25")
-public class BLUEAUTOV25 extends DbzOpMode {
+@Autonomous(name = "farspike24")
+public class farspike24 extends DbzOpMode {
 
     public static double servooff    = 0.01;
     public static double push0       = 0.81,  push3     = 0.22;
@@ -179,7 +178,7 @@ public class BLUEAUTOV25 extends DbzOpMode {
         lpush.setPosition(lockpos);
         rpush.setPosition(lockpos - servooff);
 
-        follower = Constants.createFollower(hardwareMap);
+        follower = Constants2.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(startx, starty, Math.toRadians(270)));
         paths = new Paths(follower);
 
@@ -382,7 +381,7 @@ public class BLUEAUTOV25 extends DbzOpMode {
     private void regressions() {
         double rawHood, rawVel;
         switch (state) {
-            case shoot1:  case followPath1:  rawHood = 0.65; rawVel = 2410; break;
+            case shoot1:  case followPath1:  rawHood = 0.69; rawVel = 2410; break;
             case shoot3:  case followPath3:  rawHood = 0.70; rawVel = 2446; break;
             case shoot13: case followPath13: rawHood = 0.50; rawVel = 2050; break;
             case shoot11: case followPath11: rawHood = 0.69; rawVel = 2415; break;
@@ -430,9 +429,9 @@ public class BLUEAUTOV25 extends DbzOpMode {
     private double getdesiredturretdeg() {
         double base;
         switch (state) {
-            case shoot1:  case followPath1: case followPath2:  base =  18.8; break;
+            case shoot1:  case followPath1: case followPath2:  base =  15.8; break;
             case shoot3:  case followPath3: case followPath4:  base = 104.5; break;
-            case shoot13: case followPath13: base =  92.5; break;
+            case shoot13: case followPath13: base =  94; break;
             case shoot11: case followPath11: base = 40; break;
             case shoot15: case followPath15: base = 132.5; break;
             default:                         base = 132.5; break;
