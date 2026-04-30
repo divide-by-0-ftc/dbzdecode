@@ -56,8 +56,8 @@ public class ConstantsTele {
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
 
-            .forwardPodY(-7.9213)
-            .strafePodX(0)
+            .forwardPodY(0)
+            .strafePodX(-7.9213)
 
 
             .distanceUnit(DistanceUnit.INCH)

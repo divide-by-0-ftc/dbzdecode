@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.extensions.DbzHardwareMap;
 import org.firstinspires.ftc.teamcode.extensions.DbzOpMode;
 
 @Config
-@Autonomous(name = "red5gate")
-public class redfivegate extends DbzOpMode {
+@Autonomous(name = "blue4gate")
+public class fourgateblue extends DbzOpMode {
 
     public static double servooff    = 0.01;
     public static double push0       = 0.81,  push3     = 0.22;
@@ -35,36 +35,33 @@ public class redfivegate extends DbzOpMode {
 
     public static double vkF = 0.0002, vkBBThresh = 50.0, vkVConst = 12.0;
 
-    public static double arch = 0.0;
+    public static double arch = 0;
     public static double arcv = 0.0;
 
-    public static double intakeWait1Dur = 0.1;
-    public static double intakeWait2Dur = 0.1;
-    public static double intakeWait3Dur = 0.1;
-    public static double intakeWait4Dur = 0.1;
-    public static double intakeWait5Dur = 0.1;
+    public static double intakeWait1Dur = 0.4;
+    public static double intakeWait2Dur = 0.4;
+    public static double intakeWait3Dur = 0.4;
+    public static double intakeWait4Dur = 0.4;
+    public static double intakeWait5Dur = 0.4;
 
     public static double pushLockDelay  = 0.4;
     public static double intakeRevDelay = 0.6;
 
-    public static double goalx  = 144.0, goaly  = 144.0;
-    public static double startx = 144 - 35.3, starty = 135.0;
-
+    public static double goalx  = 0.0,   goaly  = 144.0;
+    public static double startx = 35.3,  starty = 135.0;
 
     public static double dthresh  = 0.17, dthresh1 = 0.193, dthresh2 = 0.175;
     public static double sticky   = 0.2;
-    public static double sensorConfirmSec = 0.2;
+    public static double sensorConfirmSec = 0.3;
 
-    public static double shootDur = 0.23;
+    public static double shootDur = 0.3;
 
     public static double dipamt   = 0.0;
     public static double dipdelay = 0.1;
     public static double dipdur   = 0.5;
 
-    public static double turretBumpDeg = 5.0;
+    public static double turretBumpDeg = -5.0;
     public static double turretBumpDur = 1.0;
-
-    private static double m(double x) { return 144 - x; }
 
     public static class Paths {
 
@@ -76,122 +73,128 @@ public class redfivegate extends DbzOpMode {
 
             Path1 = f.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(m(35.3),    135.0),
-                            new Pose(m(60),     87.1)))
+                            new Pose(35.3,    135.0),
+                            new Pose(59.5,     79.1)))
+//                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(-124))
                     .setTangentHeadingInterpolation()
-//                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(-56))
                     .build();
 
-            Path2 = f.pathBuilder()
-                    .addPath(new BezierCurve(
-                            new Pose(m(60),    79.1),
-                            new Pose(m(39.779),  53.834),
-                            new Pose(m(14),  63)))
-                    .setTangentHeadingInterpolation()
+            Path2 = f.pathBuilder().addPath(
+                            new BezierCurve(
+                                    new Pose(59.500, 87.100),
+                                    new Pose(51.273, 55.982),
+                                    new Pose(14.201, 62.198)
+                            )
+                    ).setTangentHeadingInterpolation()
+
+
                     .build();
 
             Path3 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(m(13.260),  63),
-                            new Pose(m(39.779),  53.834),
-                            new Pose(m(60),    79.204)))
+                            new Pose(13.371, 64.446),
+                            new Pose(39.779,  53.834),
+                            new Pose(59.5,    79.204)))
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
 
             Path4 = f.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(m(60),    79.204),
-                            new Pose(m(10.5),    60)))
-                    .setLinearHeadingInterpolation(Math.toRadians(-48), Math.toRadians(35))
+                            new Pose(59.5,    79.204),
+
+                            new Pose(9.0,    60.8)))
+                    .setLinearHeadingInterpolation(Math.toRadians(-132), Math.toRadians(140))
                     .build();
 
             Path5 = f.pathBuilder()
-                    .addPath(new BezierLine(
-                            new Pose(m(10.5),    60),
-//                            new Pose(m(31.823),  51.182),
-                            new Pose(m(60),    79.204)))
+                    .addPath(new BezierCurve(
+                            new Pose(9.0,    60.8),
+                            new Pose(31.823,  51.182),
+                            new Pose(59.5,    79.204)))
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
 
             Path6 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(m(60),    79.204),
-                            new Pose(m(37.696),  83.809),
-                            new Pose(m(23.1),    84.072)))
+                            new Pose(59.5,    79.204),
+                            new Pose(37.696,  83.809),
+                            new Pose(23.1,    84.072)))
                     .setTangentHeadingInterpolation()
                     .build();
 
             Path7 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(m(23.1),    84.072),
-                            new Pose(m(41.0),    81.686),
-                            new Pose(m(60),    79.3)))
-                    .setLinearHeadingInterpolation(Math.toRadians(1), Math.toRadians(-48))
+                            new Pose(23.1,    84.072),
+                            new Pose(41.0,    81.686),
+                            new Pose(59.5,    79.3)))
+                    .setLinearHeadingInterpolation(Math.toRadians(179), Math.toRadians(-132))
                     .build();
 
             Path8 = f.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(m(60),    79.3),
-                            new Pose(m(10.5),  60)))
-                    .setLinearHeadingInterpolation(Math.toRadians(-48), Math.toRadians(35))
+                            new Pose(59.5,    79.3),
+                            new Pose(11.057,  60.309)))
+                    .setLinearHeadingInterpolation(Math.toRadians(-132), Math.toRadians(140))
                     .build();
 
             Path9 = f.pathBuilder()
-                    .addPath(new BezierLine(
-                            new Pose(m(10.5),  60),
-//                            new Pose(m(31.823),  51.182),
-                            new Pose(m(60),    79.3)))
+                    .addPath(new BezierCurve(
+                            new Pose(11.057,  60.309),
+                            new Pose(31.823,  51.182),
+                            new Pose(59.5,    79.3)))
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
 
             Path10 = f.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(m(60),    79.3),
-                            new Pose(m(10.5),  60)))
-                    .setLinearHeadingInterpolation(Math.toRadians(-48), Math.toRadians(35))
+                            new Pose(59.5,    79.3),
+                            new Pose(11.057,  60.7)))
+                    .setLinearHeadingInterpolation(Math.toRadians(-132), Math.toRadians(140))
                     .build();
 
             Path11 = f.pathBuilder()
-                    .addPath(new BezierLine(
-                            new Pose(m(10.5),  60),
-//                            new Pose(m(31.823),  51.182),
-                            new Pose(m(60),    79.3)))
+                    .addPath(new BezierCurve(
+                            new Pose(9.057,  60.7),
+                            new Pose(31.823,  51.182),
+                            new Pose(59.5,    79.3)))
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
 
             Path12 = f.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(m(60),    79.3),
-
-                            new Pose(m(10.5),    60)))
-                    .setLinearHeadingInterpolation(Math.toRadians(-48), Math.toRadians(35))
+                            new Pose(59.5,    79.3),
+                            new Pose(9.0,    60.8)))
+                    .setLinearHeadingInterpolation(Math.toRadians(-132), Math.toRadians(140))
                     .build();
 
             Path13 = f.pathBuilder()
-                    .addPath(new BezierLine(
-                            new Pose(m(10.5),    60),
-//                            new Pose(m(31.823),  51.182),
-                            new Pose(m(60),    79.4)))
+                    .addPath(new BezierCurve(
+                            new Pose(9.0,    60.8),
+                            new Pose(46.273,  65.835),
+                            new Pose(59.243, 102.519)))
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
 
-            Path14 = f.pathBuilder()
-                    .addPath(new BezierLine(
-                            new Pose(m(60),    79.4),
-                            new Pose(m(10.5),    60)))
-                    .setLinearHeadingInterpolation(Math.toRadians(-48), Math.toRadians(35))
+            Path14 = f.pathBuilder().addPath(
+                            new BezierCurve(
+                                    new Pose(54.900, 77.400),
+                                    new Pose(44.588, 60.583),
+                                    new Pose(48, 69)
+                            )
+                    ).setTangentHeadingInterpolation()
+
                     .build();
 
             Path15 = f.pathBuilder()
-                    .addPath(new BezierLine(
-                            new Pose(m(10.5),    60),
-//                            new Pose(m(31.823),  51.182),
-                            new Pose(m(60),    79.4)))
+                    .addPath(new BezierCurve(
+                            new Pose(9.0,    60.8),
+                            new Pose(46.273,  65.835),
+                            new Pose(59.243, 102.519)))
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
@@ -253,8 +256,6 @@ public class redfivegate extends DbzOpMode {
 
     @Override
     public void opInit() {
-
-
 
         rpush = hardwareMap.get(Servo.class, "rightpushServo");
         lpush = hardwareMap.get(Servo.class, "leftpushServo");
@@ -573,18 +574,16 @@ public class redfivegate extends DbzOpMode {
                 if (statetimer.seconds() >= shootDur) {
                     endshoot();
                     intake.setPower(1);
-                    follower.followPath(paths.Path14);
+//                    follower.followPath(paths.Path14);
                     statetimer.reset();
-                    state = AutonState.followPath14;
+                    state = AutonState.done;
                 }
                 break;
 
             case followPath14:
-                intake.setPower(1);
-                hold.setPosition(holdclose);
-                if (!follower.isBusy() || statetimer.seconds() > 3.0) {
+                if (!follower.isBusy()) {
                     statetimer.reset();
-                    state = AutonState.intakeWait5;
+                    state = AutonState.done;
                 }
                 break;
 
@@ -715,13 +714,8 @@ public class redfivegate extends DbzOpMode {
     }
 
     private void regressions() {
-        double rawHood, rawVel;
-        switch (state) {
-            case shoot15: case followPath15: rawHood = 0.402; rawVel = 1472; break;
-            default:                         rawHood = 0.501; rawVel = 1563; break;
-        }
-        hoodbase       = rawHood - arch;
-        targetvelocity = rawVel  - arcv;
+        hoodbase       = hooddefault - arch;
+        targetvelocity = 1600        - arcv;
     }
 
     private void aim() {
@@ -766,19 +760,19 @@ public class redfivegate extends DbzOpMode {
             case shoot1:
             case followPath1:
             case followPath2:
-                return -20;
+                return 20;
             case shoot3:
             case followPath3:
             case followPath4:
-                return -80;
+                return 80;
             case shoot7:
             case followPath7:
-                return -83;
-            case shoot15:
-            case followPath15:
-                return -79;
+                return 83;
+            case shoot13:
+            case followPath13:
+                return 78;
             default:
-                return -79;
+                return 79;
         }
 
     }
