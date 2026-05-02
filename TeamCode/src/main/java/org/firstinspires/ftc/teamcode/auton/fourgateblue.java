@@ -30,7 +30,7 @@ public class fourgateblue extends DbzOpMode {
 
     public static double tkp = 0.03,  tkd = 0.0015, tkv = 0.001;
     public static double tdead = 0.5, tmax = 1.0;
-    public static double thresh = 140.0, thresh2 = 140.0, tzero = 191.0;
+    public static double thresh = 140.0, thresh2 = 140.0, tzero = 180;
     public static double turretVelAlpha = 0.2;
 
     public static double vkF = 0.0002, vkBBThresh = 50.0, vkVConst = 12.0;
@@ -38,11 +38,11 @@ public class fourgateblue extends DbzOpMode {
     public static double arch = 0;
     public static double arcv = 0.0;
 
-    public static double intakeWait1Dur = 0.4;
-    public static double intakeWait2Dur = 0.4;
-    public static double intakeWait3Dur = 0.4;
-    public static double intakeWait4Dur = 0.4;
-    public static double intakeWait5Dur = 0.4;
+    public static double intakeWait1Dur = 0.7;
+    public static double intakeWait2Dur = 0.7;
+    public static double intakeWait3Dur = 0.7;
+    public static double intakeWait4Dur = 0.7;
+    public static double intakeWait5Dur = 0.7;
 
     public static double pushLockDelay  = 0.4;
     public static double intakeRevDelay = 0.6;
@@ -74,25 +74,22 @@ public class fourgateblue extends DbzOpMode {
             Path1 = f.pathBuilder()
                     .addPath(new BezierLine(
                             new Pose(35.3,    135.0),
-                            new Pose(59.5,     79.1)))
+                            new Pose(58.5,     80.1)))
 //                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(-124))
                     .setTangentHeadingInterpolation()
                     .build();
 
-            Path2 = f.pathBuilder().addPath(
-                            new BezierCurve(
-                                    new Pose(59.500, 87.100),
-                                    new Pose(51.273, 55.982),
-                                    new Pose(14.201, 62.198)
-                            )
-                    ).setTangentHeadingInterpolation()
-
-
+            Path2 = f.pathBuilder()
+                    .addPath(new BezierCurve(
+                            new Pose(58.461, 80.000),
+                            new Pose(44.922, 55.234),
+                            new Pose(14.169, 64.325)))
+                    .setTangentHeadingInterpolation()
                     .build();
 
             Path3 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(13.371, 64.446),
+                            new Pose(14.371, 64.446),
                             new Pose(39.779,  53.834),
                             new Pose(59.5,    79.204)))
                     .setTangentHeadingInterpolation()
@@ -103,13 +100,13 @@ public class fourgateblue extends DbzOpMode {
                     .addPath(new BezierLine(
                             new Pose(59.5,    79.204),
 
-                            new Pose(9.0,    60.8)))
-                    .setLinearHeadingInterpolation(Math.toRadians(-132), Math.toRadians(140))
+                            new Pose(8.0,    60.8)))
+                    .setLinearHeadingInterpolation(Math.toRadians(-132), Math.toRadians(139))
                     .build();
 
             Path5 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(9.0,    60.8),
+                            new Pose(8.0,    60.8),
                             new Pose(31.823,  51.182),
                             new Pose(59.5,    79.204)))
                     .setTangentHeadingInterpolation()
@@ -135,13 +132,13 @@ public class fourgateblue extends DbzOpMode {
             Path8 = f.pathBuilder()
                     .addPath(new BezierLine(
                             new Pose(59.5,    79.3),
-                            new Pose(11.057,  60.309)))
-                    .setLinearHeadingInterpolation(Math.toRadians(-132), Math.toRadians(140))
+                            new Pose(8.057,  60.309)))
+                    .setLinearHeadingInterpolation(Math.toRadians(-132), Math.toRadians(139))
                     .build();
 
             Path9 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(11.057,  60.309),
+                            new Pose(8.057,  60.309),
                             new Pose(31.823,  51.182),
                             new Pose(59.5,    79.3)))
                     .setTangentHeadingInterpolation()
@@ -151,13 +148,13 @@ public class fourgateblue extends DbzOpMode {
             Path10 = f.pathBuilder()
                     .addPath(new BezierLine(
                             new Pose(59.5,    79.3),
-                            new Pose(11.057,  60.7)))
-                    .setLinearHeadingInterpolation(Math.toRadians(-132), Math.toRadians(140))
+                            new Pose(8.057,  60.7)))
+                    .setLinearHeadingInterpolation(Math.toRadians(-132), Math.toRadians(139))
                     .build();
 
             Path11 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(9.057,  60.7),
+                            new Pose(8.057,  60.7),
                             new Pose(31.823,  51.182),
                             new Pose(59.5,    79.3)))
                     .setTangentHeadingInterpolation()
@@ -167,13 +164,13 @@ public class fourgateblue extends DbzOpMode {
             Path12 = f.pathBuilder()
                     .addPath(new BezierLine(
                             new Pose(59.5,    79.3),
-                            new Pose(9.0,    60.8)))
-                    .setLinearHeadingInterpolation(Math.toRadians(-132), Math.toRadians(140))
+                            new Pose(8.0,    60.8)))
+                    .setLinearHeadingInterpolation(Math.toRadians(-132), Math.toRadians(139))
                     .build();
 
             Path13 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(9.0,    60.8),
+                            new Pose(8.0,    60.8),
                             new Pose(46.273,  65.835),
                             new Pose(59.243, 102.519)))
                     .setTangentHeadingInterpolation()
@@ -183,7 +180,7 @@ public class fourgateblue extends DbzOpMode {
             Path14 = f.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(54.900, 77.400),
-                                    new Pose(44.588, 60.583),
+                                    new Pose(44.588, 61.583),
                                     new Pose(48, 69)
                             )
                     ).setTangentHeadingInterpolation()
@@ -192,7 +189,7 @@ public class fourgateblue extends DbzOpMode {
 
             Path15 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(9.0,    60.8),
+                            new Pose(8.0,    60.8),
                             new Pose(46.273,  65.835),
                             new Pose(59.243, 102.519)))
                     .setTangentHeadingInterpolation()
@@ -305,7 +302,6 @@ public class fourgateblue extends DbzOpMode {
 
         follower.update();
         cachedTurretDeg = rawTurretDeg();
-        updateSensors();
         regressions();
         aim();
         runflywheel();
@@ -368,7 +364,6 @@ public class fourgateblue extends DbzOpMode {
                 break;
 
             case intakeWait1:
-                runBallDetect();
                 if (statetimer.seconds() >= intakeWait1Dur) {
                     follower.followPath(paths.Path5);
                     statetimer.reset();
@@ -654,47 +649,8 @@ public class fourgateblue extends DbzOpMode {
         reversing  = false;
     }
 
-    private void updateSensors() {
-        if (d0.getVoltage() < dthresh)  { latch0 = true; st0.reset(); }
-        if (d1.getVoltage() < dthresh1) { latch1 = true; st1.reset(); }
-        if (d2.getVoltage() < dthresh2) { latch2 = true; st2.reset(); }
-        if (st0.seconds() > sticky) latch0 = false;
-        if (st1.seconds() > sticky) latch1 = false;
-        if (st2.seconds() > sticky) latch2 = false;
-    }
 
-    private void runBallDetect() {
-        boolean hit = latch0 && latch1 && latch2;
-        if (!reversing && !ballLocked) {
-            if (hit) {
-                if (!prevdetect) { detecttimer.reset(); prevdetect = true; }
-                if (detecttimer.seconds() >= sensorConfirmSec) {
-                    latch0 = latch1 = latch2 = false;
-                    prevdetect = false;
-                    lpush.setPosition(lockpos);
-                    rpush.setPosition(lockpos - servooff);
-                    intake.setPower(-1);
-                    revtimer.reset();
-                    reversing = true;
-                }
-            } else {
-                prevdetect = false;
-                intake.setPower(1);
-            }
-        }
-        if (reversing) {
-            lpush.setPosition(lockpos);
-            rpush.setPosition(lockpos - servooff);
-            if      (revtimer.seconds() < 0.5)  intake.setPower(-1);
-            else if (revtimer.seconds() < 0.85) intake.setPower(1);
-            else { intake.setPower(1); reversing = false; ballLocked = true; }
-        }
-        if (ballLocked) {
-            lpush.setPosition(lockpos);
-            rpush.setPosition(lockpos - servooff);
-            intake.setPower(1);
-        }
-    }
+
 
     private void dipshot() {
         boolean shooting = state == AutonState.shoot1  || state == AutonState.shoot3  ||
@@ -764,15 +720,15 @@ public class fourgateblue extends DbzOpMode {
             case shoot3:
             case followPath3:
             case followPath4:
-                return 80;
+                return 83;
             case shoot7:
             case followPath7:
-                return 83;
+                return 85;
             case shoot13:
             case followPath13:
-                return 78;
+                return 8-0;
             default:
-                return 79;
+                return 86;
         }
 
     }

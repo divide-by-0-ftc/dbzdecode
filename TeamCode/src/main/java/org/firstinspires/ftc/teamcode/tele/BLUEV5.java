@@ -37,11 +37,14 @@ public class BLUEV5 extends DbzOpMode {
     private enum BallState   { IDLE, REVERSING, LOCKED }
 
     public static double push0 = 0.85, push1 = 0.67, push2 = 0.47, push3 = 0.22;
-    public static double lockpos = 0.71, twitch = 0.8, servooff = 0.035;
+    public static double lockpos = 0.73, twitch = 0.8, servooff = 0.035;
     public static double shot1 = 300, shot2 = 600, shotret = 1000;
     public static double holdopen = 0.8, holdclose = 0.467;
     public static double hooddefault = 0.3;
-    public static double dipamt = 0, dipdelay = 0, dipdur = 0;
+    public static double dipamt = 0.00, dipdelay = 0.1, dipdur = 1.5;
+
+
+
 
     public static double dthresh = 0.16, dthresh1 = 0.163, dthresh2 = 0.175;
     public static double sticky = 0.15;
@@ -54,9 +57,9 @@ public class BLUEV5 extends DbzOpMode {
 
     public static double goalx = 0, goaly = 144;
 
-    public static double tkp = 0.02, tkd = 0.0015, tkv = 0.0015, tks = 0.0, tffdead = 0.0;
+    public static double tkp = 0.03, tkd = 0.0015, tkv = 0.00, tks = 0.0, tffdead = 0.0;
     public static double tdead = 0.0, tmax = 1.0, toff = 2.0;
-    public static double thresh = 140, thresh2 = 170, tzero = 191;
+    public static double thresh = 170, thresh2 = 170, tzero = 180;
     public static double turretVelAlpha = 0.2;
 
     public static double vkF = 0.00038, vkBBThresh = 50.0, vkVConst = 12.0;
@@ -64,7 +67,7 @@ public class BLUEV5 extends DbzOpMode {
     public static double sotmDelay = 0.1, sotmMinVel = 1.5, sotmScale = 0.2;
     public static double sotmVelAlpha = 0.3;
 
-    public static double veloff = 20;
+    public static double veloff = 10;
 
     public static double brakeWait = 0.3, brakeShootDelay = 0.0;
 
@@ -76,14 +79,14 @@ public class BLUEV5 extends DbzOpMode {
     public static double llTaMin = 0.05, llMaxJump = 40.0, llCooldown = 1.5;
     public static double llMaxDriveV = 2.0, llMaxRotV = 1.0, llMaxTurretV = 5.0;
     public static double xoffset = 0.0, yoffset = 6.0;
-    public static double sotg = 0.25;
+    public static double sotg = 1;
 
     protected Servo       rpush, lpush, hood, hold, blinkin;
     protected DcMotorEx   intake, fly1, fly2, turret;
     protected DcMotorEx   fl, fr, bl, br;
     private   VoltageSensor vsensor;
     private   AnalogInput   tenc, d0, d1, d2;
-    private   Limelight3A   limelight;
+
     private   List<LynxModule> hubs;
 
     private final ElapsedTime intaketimer = new ElapsedTime();
@@ -107,8 +110,9 @@ public class BLUEV5 extends DbzOpMode {
     private boolean autohood      = true,  lasta        = false;
     private boolean aiming        = true,  lastaim      = false;
     private boolean sotmActive    = false, lastsotm     = false;
-    private boolean intakefwd     = false, intakerev    = false;
+    private boolean intakefwd     = true, intakerev    = false;
     private boolean lastlb        = false, lastrb       = false;
+    private boolean lastlb2        = false, lastrb2       = false;
     private boolean lastr1        = false, lastl1       = false;
     private boolean lastrup        = false, lastldown      = false;
     private boolean lastdpadup2   = false, lastdpaddn2  = false;
@@ -209,10 +213,6 @@ public class BLUEV5 extends DbzOpMode {
                 telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetrym = PanelsTelemetry.INSTANCE.getTelemetry();
 
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.setPollRateHz(100);
-        limelight.start();
-
         follower = ConstantsTele.createFollower(hardwareMap);
         follower.setStartingPose(PoseCache.lastPose);
 
@@ -244,7 +244,6 @@ public class BLUEV5 extends DbzOpMode {
         lasta = abtn;
 
 //        boolean dpadup2 = gamepad2.dpad_up;
-//        boolean dpadup2 = .dpad_up;
 //        boolean dpaddn2 = gamepad2.dpad_down;
 //        if (dpadup2 && !lastdpadup2) { holdoverride = true; holdpos = holdopen; }
 //        if (dpaddn2 && !lastdpaddn2) { holdoverride = true; holdpos = holdclose; }
@@ -257,13 +256,13 @@ public class BLUEV5 extends DbzOpMode {
         lastl1 = gamepad2.dpad_left;
 
 
-        if (gamepad2.dpad_down && !lastrup) arcv -= veloff;
-        if (gamepad2.dpad_up  && !lastldown) arcv += veloff;
-        lastrup = gamepad2.dpad_down;
-        lastldown = gamepad2.dpad_up;
+        if (gamepad2.dpad_down && !lastldown) arcv -= veloff;
+        if (gamepad2.dpad_up  && !lastrup) arcv += veloff;
+        lastrup = gamepad2.dpad_up;
+        lastldown = gamepad2.dpad_down;
 
 
-        boolean b = gamepad1.b;
+        boolean b = gamepad2.b;
         if (b && !lastB) { slowShoot2 = !slowShoot2; slowStep = 0; slowReturning = false; if (!slowShoot2) { braking = false; follower.startTeleopDrive(); } }
         lastB = b;
 
@@ -271,7 +270,7 @@ public class BLUEV5 extends DbzOpMode {
         if (slowShoot2) {
             boolean s1 = gamepad2.left_bumper;
 
-            if (!slowReturning && s1 && !lastlb) {
+            if (!slowReturning && s1 && !lastlb2) {
                 slowStep++;
                 if (slowStep == 1) {
                     lpush.setPosition(push1); rpush.setPosition(push1 - servooff);
@@ -285,12 +284,16 @@ public class BLUEV5 extends DbzOpMode {
             }
             if (slowReturning && slowShotTimer.milliseconds() > 500) {
                 lpush.setPosition(push0); rpush.setPosition(push0 - servooff);
+
                 slowReturning = false; slowStep = 0;
+                intake.setPower(1); intakefwd = true;
+                holdoverride = false;
+                holdpos = holdclose;
             }
-            lastlb = s1;
+            lastlb2 = s1;
         }
 
-        boolean sotmbtn = gamepad1.dpad_down;
+        boolean sotmbtn = gamepad2.x;
         if (sotmbtn && !lastsotm) sotmActive = !sotmActive;
         lastsotm = sotmbtn;
 
@@ -330,15 +333,15 @@ public class BLUEV5 extends DbzOpMode {
         follower.update();
 
         if (dbzGamepad1.x) { follower.setPose(new Pose(15.91160220994475, 78.76243093922652, Math.toRadians(180)));  turretoffset = 0; }
-        if (dbzGamepad1.y) { follower.setPose(new Pose(9.76378, 8.661, Math.toRadians(0))); turretoffset = 0; }
+        if (dbzGamepad1.y) { follower.setPose(new Pose(144-9.76378, 8.661, Math.toRadians(180))); turretoffset = 0; }
 
-        updateVision();
+
         regressions();
         runballdetection();
         shootfast();
         activeintake();
         updatehold();
-
+        dipshot();
         aim();
         runflywheel();
         updatelights();
@@ -357,77 +360,7 @@ public class BLUEV5 extends DbzOpMode {
     }
 
 
-    private void updateVision() {
 
-        llValid = false; llApplied = false; llTa = 0;
-
-        Pose cur = follower.getPose();
-        if (cur == null) { llStatus = "NO_POSE"; return; }
-
-        double kdt = kDtTimer.seconds();
-        kDtTimer.reset();
-        if (kdt <= 0 || kdt > 0.5) kdt = 0.02;
-        double driftVar = kSigmaD * kSigmaD * kdt;
-        kpX += driftVar;
-        kpY += driftVar;
-
-        double robotHeadingRad = cur.getHeading();
-        double turretAngleRad  = Math.toRadians(getturretdeg() - 180.0);
-        limelight.updateRobotOrientation(Math.toDegrees(robotHeadingRad + turretAngleRad) + 90.0);
-
-        long   now = System.currentTimeMillis();
-        double dt  = (now - llLastTimeMs) / 1000.0;
-        if (dt > 0) {
-            llTurretVelDeg = (getturretdeg() - llLastTurretDeg) / dt;
-            llRotVelRad    = (robotHeadingRad - llLastHeadingRad) / dt;
-        }
-        llLastTurretDeg  = getturretdeg();
-        llLastHeadingRad = robotHeadingRad;
-        llLastTimeMs     = now;
-
-        com.pedropathing.math.Vector vel = follower.getVelocity();
-        double driveV = vel != null ? Math.hypot(vel.getXComponent(), vel.getYComponent()) : 0;
-        boolean moving = driveV > llMaxDriveV
-                || Math.abs(llRotVelRad)    > llMaxRotV
-                || Math.abs(llTurretVelDeg) > llMaxTurretV;
-        if (moving)                              { llStatus = "MOVING";   return; }
-        if (llCoolTimer.seconds() < llCooldown)  { llStatus = "COOLDOWN"; return; }
-
-        LLResult res = limelight.getLatestResult();
-        if (res == null || !res.isValid())                                          { llStatus = "NO_RESULT"; return; }
-        if (res.getFiducialResults() == null || res.getFiducialResults().isEmpty()) { llStatus = "NO_TAG";    return; }
-
-        llTa = res.getTa();
-        if (llTa < llTaMin) { llStatus = "LOW_TA"; return; }
-
-        Pose3D bp = res.getBotpose_MT2();
-        if (bp == null) { llStatus = "NO_MT2"; return; }
-
-        llValid = true;
-        llX     = 72 + (bp.getPosition().y * 39.3701) + xoffset;
-        llY     = 72 - (bp.getPosition().x * 39.3701) + yoffset;
-        llJump  = Math.hypot(llX - cur.getX(), llY - cur.getY());
-
-        if (!llEnabled)         { llStatus = "DISABLED"; return; }
-        if (llJump > llMaxJump) { llStatus = "JUMP_" + String.format("%.1f", llJump); return; }
-
-        double zX = cur.getX() - llX;
-        double kX = kpX / (kpX + kSigmaLL);
-        kdX  = kdX + kX * (zX - kdX);
-        kpX  = (1 - kX) * kpX;
-
-        double zY = cur.getY() - llY;
-        double kY = kpY / (kpY + kSigmaLL);
-        kdY  = kdY + kY * (zY - kdY);
-        kpY  = (1 - kY) * kpY;
-
-        follower.setPose(new Pose(cur.getX() - kdX, cur.getY() - kdY, robotHeadingRad));
-        kdX = 0; kdY = 0; kpX = 1; kpY = 1;
-
-        llApplied = true;
-        llStatus  = "APPLIED";
-        llCoolTimer.reset();
-    }
 
 
     private void runballdetection() {
@@ -506,6 +439,17 @@ public class BLUEV5 extends DbzOpMode {
     }
 
 
+    private void dipshot() {
+        if (shoot && !dipping && !dipdone) { dipping = true; diptimer.reset(); }
+        if (!shoot) { dipping = false; dipdone = false; hood.setPosition(hoodbase); return; }
+        if (dipping) {
+            double t = diptimer.seconds();
+            if      (t < dipdelay)           hood.setPosition(hoodbase);
+            else if (t < dipdelay + dipdur)  hood.setPosition(Math.max(0.0, hoodbase - dipamt));
+            else { hood.setPosition(hoodbase); dipping = false; dipdone = true; }
+        }
+    }
+
 
     private Pose virtualgoal(Pose p) {
 
@@ -538,7 +482,7 @@ public class BLUEV5 extends DbzOpMode {
         boolean had3      = ballslocked;
         boolean holdready = hold.getPosition() >= holdopen - 0.01;
         ballslocked = false; holdoverride = false;
-        intaketimer.reset(); shoot = true;  ;
+        intaketimer.reset(); shoot = true; dipping = false; dipdone = false;
 
         if (!fastmode) {
             holdpos = holdclose;
@@ -566,7 +510,7 @@ public class BLUEV5 extends DbzOpMode {
                 holdwait = false; lpush.setPosition(push1); rpush.setPosition(push1 - servooff); intaketimer.reset();
             } else if (shoot && !holdwait) {
                 double ms = intaketimer.milliseconds();
-                if      (ms > shotret) { lpush.setPosition(push0); rpush.setPosition(push0 - servooff); holdpos = holdclose; shoot = false; resetshot(); }
+                if  (ms > shotret) { lpush.setPosition(push0); rpush.setPosition(push0 - servooff); holdpos = holdclose; shoot = false; resetshot(); }
                 else if (ms > shot2)   { lpush.setPosition(push3); rpush.setPosition(push3 - servooff); }
                 else if (ms > shot1)   { lpush.setPosition(push2); rpush.setPosition(push2 - servooff); }
             }
@@ -593,7 +537,7 @@ public class BLUEV5 extends DbzOpMode {
 
 
     private void activeintake() {
-        if (slowShoot2) return;
+
 
         boolean rb = gamepad1.right_bumper;
         boolean lb = gamepad1.left_bumper;
@@ -707,6 +651,7 @@ public class BLUEV5 extends DbzOpMode {
     private double wrapasym(double a, double n) { return ((a + n)   % 360 + 360) % 360 - n;   }
 
     private void sendtelem() {
+        telemetry.addData("voltage",   tenc.getVoltage());
         telemetry.addData("turret target",   targetdeg);
         telemetry.addData("turret current",  currentdeg);
         telemetry.addData("turret error",    wrapangle(targetdeg - currentdeg));
@@ -732,6 +677,7 @@ public class BLUEV5 extends DbzOpMode {
         telemetry.addData("ll jump",         llJump);
         telemetry.addData("kpX",             kpX);
         telemetry.addData("turret vel",      filteredDesiredTurretVel);
+
         Pose p = follower.getPose();
         if (p != null) { telemetry.addData("x", p.getX()); telemetry.addData("y", p.getY()); }
     }

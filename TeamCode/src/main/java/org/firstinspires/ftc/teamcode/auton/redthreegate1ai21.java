@@ -30,7 +30,7 @@ public class redthreegate1ai21 extends DbzOpMode {
 
     public static double tkp = 0.03,  tkd = 0.0015, tkv = 0.001;
     public static double tdead = 0.5, tmax = 1.0;
-    public static double thresh = 140.0, thresh2 = 140.0, tzero = 191.0;
+    public static double thresh = 140.0, thresh2 = 140.0, tzero = 180;
     public static double turretVelAlpha = 0.2;
 
     public static double vkF = 0.00038, vkBBThresh = 50.0, vkVConst = 12.0;
@@ -38,9 +38,9 @@ public class redthreegate1ai21 extends DbzOpMode {
     public static double arch = 0.;
     public static double arcv = 0.0;
 
-    public static double intakeWait1Dur = 0.7;
-    public static double intakeWait2Dur = 0.9;
-    public static double intakeWait3Dur = 0.9;
+    public static double intakeWait1Dur = 0.5;
+    public static double intakeWait2Dur = 0.7;
+    public static double intakeWait3Dur = 0.7;
 
     public static double pushLockDelay  = 0.4;
     public static double intakeRevDelay = 0.6;
@@ -74,17 +74,17 @@ public class redthreegate1ai21 extends DbzOpMode {
 
             Path1 = f.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(m(35.3),   135.0),
-                            new Pose(m(56.461),  79.0)))
-//                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(-46))
+                            new Pose(m(35.3),    135.0),
+                            new Pose(m(58.461),   80.0)))
                     .setTangentHeadingInterpolation()
+//                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(-134))
                     .build();
 
             Path2 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(m(56.461),  79.0),
+                            new Pose(m(58.461),  80.0),
                             new Pose(m(43.3),    65.867),
-                            new Pose(m(15),    59.282)))
+                            new Pose(m((15)),    59.282)))
                     .setTangentHeadingInterpolation()
                     .build();
 
@@ -92,62 +92,62 @@ public class redthreegate1ai21 extends DbzOpMode {
                     .addPath(new BezierCurve(
                             new Pose(m(15),    59.282),
                             new Pose(m(43.301),  65.867),
-                            new Pose(m(57.4),    79.0)))
+                            new Pose(m(57.4),    80.0)))
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
 
             Path4 = f.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(m(57.4),    79.0),
-                            new Pose(m(11),  60.7)))
-                    .setLinearHeadingInterpolation(Math.toRadians(-49), Math.toRadians(25))
+                            new Pose(m(57.4),    80.0),
+                            new Pose(m(9.0),  60.7)))
+                    .setLinearHeadingInterpolation(Math.toRadians(-49), Math.toRadians(35))
                     .build();
 
             Path5 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(m(11),  60.7),
+                            new Pose(m(9.0),  60.7),
                             new Pose(m(31.8),    51.182),
-                            new Pose(m(56.3),    79.0)))
+                            new Pose(m(58.3),    80.0)))
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
 
             Path6 = f.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(m(56.3),    79.0),
-                            new Pose(m(11),    60.7)))
-                    .setLinearHeadingInterpolation(Math.toRadians(-49), Math.toRadians(25))
+                            new Pose(m(58.3),    80.0),
+                            new Pose(m(9),    60.7)))
+                    .setLinearHeadingInterpolation(Math.toRadians(-49), Math.toRadians(35))
                     .build();
 
             Path7 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(m(11),    60.7),
+                            new Pose(m(9),    60.7),
                             new Pose(m(31.823),  51.182),
-                            new Pose(m(56.5),    79.4)))
+                            new Pose(m(58.5),    80.4)))
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
 
             Path8 = f.pathBuilder()
                     .addPath(new BezierLine(
-                            new Pose(m(56.5),    79.4),
-                            new Pose(m(11),    60.7)))
-                    .setLinearHeadingInterpolation(Math.toRadians(-49), Math.toRadians(26))
+                            new Pose(m(58.5),    80.4),
+                            new Pose(m(9),    60.7)))
+                    .setLinearHeadingInterpolation(Math.toRadians(-49), Math.toRadians(35))
                     .build();
 
             Path9 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(m(11),    60.7),
+                            new Pose(m(9),    60.7),
                             new Pose(m(31.9),    51.182),
-                            new Pose(m(56.4),    79.3)))
+                            new Pose(m(58.4),    81.3)))
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
 
             Path10 = f.pathBuilder()
                     .addPath(new BezierCurve(
-                            new Pose(m(56.4),    79.3),
+                            new Pose(m(58.4),    81.3),
                             new Pose(m(38.448),  84.924),
                             new Pose(m(23.630),  84.552)))
                     .setTangentHeadingInterpolation()
@@ -156,16 +156,37 @@ public class redthreegate1ai21 extends DbzOpMode {
             Path11 = f.pathBuilder()
                     .addPath(new BezierLine(
                             new Pose(m(23.630),  84.552),
-                            new Pose(m(56.6),    79.4)))
+                            new Pose(m(58.6),    80.4)))
                     .setLinearHeadingInterpolation(Math.toRadians(-1), Math.toRadians(289))
                     .build();
 
+//            Path12 = f.pathBuilder()
+//                    .addPath(
+//                            new BezierCurve(
+//                                    new Pose(55.100, 80.400),
+//                                    new Pose(8.848, 54.313),
+//                                    new Pose(12.669, 31.569)
+//                            )
+//                    )
+//                    .setTangentHeadingInterpolation()
+//                    .build();
+//
+//            Path13 = f.pathBuilder()
+//                    .addPath(
+//                            new BezierLine(
+//                                    new Pose(12.669, 31.569),
+//                                    new Pose(58.470, 104.552)
+//                            )
+//                    )
+//                    .setTangentHeadingInterpolation()
+//                    .setReversed()
+//                    .build();
             Path12 = f.pathBuilder()
                     .addPath(
                             new BezierCurve(
-                                    new Pose(m(55.100), 79.400),
-                                    new Pose(m(9.848), 56.313),
-                                    new Pose(m(10.669), 10.569)
+                                    new Pose(m(55.100), 80.400),
+                                    new Pose(m(9.848), 58.313),
+                                    new Pose(m(14.669), 16.569)
                             )
                     )
                     .setTangentHeadingInterpolation()
@@ -174,13 +195,14 @@ public class redthreegate1ai21 extends DbzOpMode {
             Path13 = f.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(m(10.669), 10.569),
-                                    new Pose(m(58.470), 104.552)
+                                    new Pose(m(14.669), 16.569),
+                                    new Pose(m(62.470), 115.552)
                             )
                     )
                     .setTangentHeadingInterpolation()
                     .setReversed()
                     .build();
+
         }
     }
 
@@ -534,11 +556,11 @@ public class redthreegate1ai21 extends DbzOpMode {
                 break;
 
             case followPath13:
-                if (statetimer.seconds() > 0.5) {
+                if (statetimer.seconds() > 0.3) {
                     lpush.setPosition(lockpos);
                     rpush.setPosition(lockpos - servooff);
                 }
-                if (statetimer.seconds() > 0.7) {
+                if (statetimer.seconds() > 0.3) {
                     intake.setPower(-1);
                     hold.setPosition(holdopen);
                 }
@@ -652,14 +674,14 @@ public class redthreegate1ai21 extends DbzOpMode {
     private void regressions() {
         double rawHood, rawVel;
         switch (state) {
-            case shoot1:  case followPath1:                    rawHood = 0.498; rawVel = 1559; break;
-            case shoot3:  case followPath3:                    rawHood = 0.498; rawVel = 1558; break;
-            case shoot5:                                       rawHood = 0.497; rawVel = 1558; break;
-            case shoot7:                                       rawHood = 0.496; rawVel = 1557; break;
-            case shoot9:                                       rawHood = 0.496; rawVel = 1557; break;
-            case shoot11: case followPath11:                   rawHood = 0.497; rawVel = 1557; break;
+            case shoot1:  case followPath1:                    rawHood = 0.498; rawVel = 1609; break;
+            case shoot3:  case followPath3:                    rawHood = 0.53; rawVel = 1570; break;
+            case shoot5:                                       rawHood = 0.497; rawVel = 1608; break;
+            case shoot7:                                       rawHood = 0.496; rawVel = 1607; break;
+            case shoot9:                                       rawHood = 0.496; rawVel = 1607; break;
+            case shoot11: case followPath11:                   rawHood = 0.497; rawVel = 1607; break;
             case shoot13: case followPath13:                   rawHood = 0.388; rawVel = 1463; break;
-            default:                                           rawHood = 0.497; rawVel = 1558; break;
+            default:                                           rawHood = 0.497; rawVel = 1608; break;
         }
         hoodbase       = rawHood - arch;
         targetvelocity = rawVel  - arcv;
@@ -704,11 +726,11 @@ public class redthreegate1ai21 extends DbzOpMode {
     private double getdesiredturretdeg() {
         double base;
         switch (state) {
-            case shoot1:  case followPath1:  case followPath2: base =  -20; break;
-            case shoot3:  case followPath3:  case followPath4: base =  -83; break;
-            case shoot13: case followPath13:                   base =  -78; break;
-            case shoot11: case followPath11:                   base =  -67; break;
-            default:                                           base = -77; break;
+            case shoot1:  case followPath1:  case followPath2: base =  -18; break;
+            case shoot3:  case followPath3:  case followPath4: base =  -81.5; break;
+            case shoot13: case followPath13:                   base =  -93; break;
+            case shoot11: case followPath11:                   base =  -57.5; break;
+            default:                                           base = -82.5; break;
         }
         if (turretBump) {
             if (bumpTimer.seconds() < turretBumpDur) return base + turretBumpDeg;
