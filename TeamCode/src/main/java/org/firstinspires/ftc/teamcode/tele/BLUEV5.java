@@ -46,7 +46,7 @@ public class BLUEV5 extends DbzOpMode {
 
 
 
-    public static double dthresh = 0.16, dthresh1 = 0.163, dthresh2 = 0.175;
+    public static double dthresh = 0.165, dthresh1 = 0.174, dthresh2 = 0.16;
     public static double sticky = 0.15;
 
     public static double[] lutD = {51.5,  60.9,  71.95,  80.3,  87.1,  97.1, 109.5};
@@ -59,7 +59,7 @@ public class BLUEV5 extends DbzOpMode {
 
     public static double tkp = 0.03, tkd = 0.0015, tkv = 0.00, tks = 0.0, tffdead = 0.0;
     public static double tdead = 0.0, tmax = 1.0, toff = 2.0;
-    public static double thresh = 170, thresh2 = 170, tzero = 180;
+    public static double thresh = 170, thresh2 = 140, tzero = 180;
     public static double turretVelAlpha = 0.2;
 
     public static double vkF = 0.00038, vkBBThresh = 50.0, vkVConst = 12.0;
