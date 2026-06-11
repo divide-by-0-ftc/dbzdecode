@@ -64,7 +64,8 @@ public class BLUEV5 extends DbzOpMode {
 
     public static double vkF = 0.00038, vkBBThresh = 50.0, vkVConst = 12.0;
 
-    public static double sotmDelay = 0.1, sotmMinVel = 1.5, sotmScale = 0.2;
+    public static double sotmDelay = 0.1, sotmMinVel = 1.5, sotmScale = 1;
+    //controller delay, minimum vel, how much correction 0-1
     public static double sotmVelAlpha = 0.3;
 
     public static double veloff = 10;
@@ -582,6 +583,21 @@ public class BLUEV5 extends DbzOpMode {
         lastaim = aimBtn;
 
         double tgt = !aiming ? 0 : clampturret();
+        if (aiming && sotmActive && cachedVgoal != null) {
+            Pose p = follower.getPose();
+            if (p != null) {
+                double dx = cachedVgoal.getX() - p.getX();
+                double dy = cachedVgoal.getY() - p.getY();
+                double dist = Math.hypot(dx, dy);
+                double angVelDegPerSec = Math.toDegrees(
+                        (svx * dy - svy * dx) / (dist * dist)
+                );
+                double tTotal = timea*dist*dist + timeb*dist + timec + sotmDelay;
+                double leadDeg = angVelDegPerSec * tTotal;
+                tgt = wrapasym(tgt + leadDeg, thresh);
+                tgt = Math.max(-thresh, Math.min(thresh2, tgt));
+            }
+        }
         double cur = getturretdeg();
         targetdeg = tgt; currentdeg = cur;
         double err = wrapangle(tgt - cur);
@@ -635,8 +651,14 @@ public class BLUEV5 extends DbzOpMode {
 
     private double clampturret() {
         double d = wrapangle(getdesiredturretdeg());
-        if (d >  thresh2) return  thresh2;
-        if (d < -thresh)  return -thresh;
+        if (d > thresh2) {
+            turretoffset += 180;   // flip wrap side
+            return thresh2 - 1;
+        }
+        if (d < -thresh) {
+            turretoffset -= 180;
+            return -thresh + 1;
+        }
         return d;
     }
 
