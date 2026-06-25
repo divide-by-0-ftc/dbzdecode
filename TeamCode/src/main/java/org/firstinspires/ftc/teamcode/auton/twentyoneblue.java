@@ -21,14 +21,14 @@ import org.firstinspires.ftc.teamcode.extensions.DbzHardwareMap;
 import org.firstinspires.ftc.teamcode.extensions.DbzOpMode;
 
 @Config
-@Autonomous(name = "nineplustenblue")
-public class nineplustenblue extends DbzOpMode
+@Autonomous(name = "twentyoneblue")
+public class twentyoneblue extends DbzOpMode
 {
     public static double servooff = 0.01;
     public static double push0 = 0.81, push3 = 0.22;
     public static double lockpos = 0.71;
     public static double holdopen = 0.8, holdclose = 0.467;
-    public static double intakewaittimeout = 1.0;
+    public static double intakewaittimeout = 1.5;
     public static double revdebounce = 1.7, lockdebounce = 1.4;
     public static double bangff = 0.85;
     public static double timeA = 0.00002, timeB = 0.004, timeC = 0.25;
@@ -40,7 +40,7 @@ public class nineplustenblue extends DbzOpMode
     public static double thresh = 220, thresh2 = 220;
     public static double startx = 35.33372228704784, starty = 133.472;
     public static double tG=0.52, tS=0.10;
-    public static double gatex = 11.75, gatey = 61.75, gateh = 159;
+    public static double gatex = 11.75, gatey = 61.3, gateh = 159;
 
     public static double shootx = 57.85, shooty=78;
     public static double nearwallx = 144 - 126.373, nearwally = 84.566;
@@ -55,10 +55,10 @@ public class nineplustenblue extends DbzOpMode
     public static double hood1 = 0.50, vel1 = 1460, turret1 = -155;
 
     // Shot 3 - spike 2 ball, fired after Path3
-    public static double hood3 = 0.46, vel3 = 1520, turret3 = 50;
+    public static double hood3 = 0.46, vel3 = 1520, turret3 = 141;
 
     // Shot 5 - first ball off the wall intake leg, fired after Path5
-    public static double hood5 = 0.5, vel5 = 1540, turret5 = 108;
+    public static double hood5 = 0.5, vel5 = 1520, turret5 = 108;
 
     // Shot 7 - second wall intake leg, fired after Path7
     public static double hood7 = 0.5, vel7 = 1520, turret7 = 108;
@@ -104,7 +104,7 @@ public class nineplustenblue extends DbzOpMode
                     .setTangentHeadingInterpolation().setReversed().build();
 //spike 2
             Path4 = f.pathBuilder().addPath(
-                            new BezierCurve(new Pose(53, 76), new Pose(144-110.990, 61.361), new Pose(18.75, 65.49)))
+                            new BezierCurve(new Pose(53, 76), new Pose(144-110.990, 60.361), new Pose(18.55, 64.99)))
                     .setTangentHeadingInterpolation().build();
 
             Path5 = f.pathBuilder().addPath(
@@ -659,7 +659,6 @@ public class nineplustenblue extends DbzOpMode
                 hold.setPosition(holdclose);
                 if (!follower.isBusy())
                 {
-                    statetimer.reset();
                     state = AutonState.intakeWait5;
                 }
                 break;
@@ -690,64 +689,10 @@ public class nineplustenblue extends DbzOpMode
                 {
                     endshoot();
                     intake.setPower(1);
-                    follower.followPath(paths.Path14, true);
-                    state = AutonState.followPath14;
-                }
-                break;
-
-            case followPath14:
-                intake.setPower(1);
-                hold.setPosition(holdclose);
-                runballdetection();
-                if (!follower.isBusy())
-                {
-                    statetimer.reset();
-                    state = AutonState.intakeWait6;
-                }
-                break;
-
-
-            case intakeWait6:
-                runballdetection();
-                if (bstate == BallState.locked || statetimer.seconds() >= intakewaittimeout)
-                {
-                    bstate = BallState.idle;
-                    prevdetect = false;
-                    follower.followPath(paths.Path15, true);
-                    state = AutonState.followPath15;
-                }
-                break;
-            case followPath15:
-                if (statetimer.seconds() > lockdebounce)
-                {
-                    lpush.setPosition(lockpos);
-                    rpush.setPosition(lockpos - servooff);
-                }
-                if (statetimer.seconds() >= revdebounce)
-                {
-                    intake.setPower(-1);
-                    hold.setPosition(holdopen);
-                }
-                if (!follower.isBusy())
-                {
-                    startshoot();
-                    intake.setPower(1);
-                    statetimer.reset();
-                    state = AutonState.shoot15;
-                }
-                break;
-
-
-            case shoot15:
-                if (statetimer.seconds() >= 0.4)
-                {
-                    endshoot();
-                    intake.setPower(0);
                     follower.followPath(paths.Path16, true);
                     state = AutonState.followPath16;
                 }
                 break;
-
 
             case followPath16:
                 if (!follower.isBusy())
@@ -860,10 +805,9 @@ public class nineplustenblue extends DbzOpMode
         {
             case followPath1: case shoot1:
             hoodpos = hood1; vel = vel1; break;
-            case followPath2:
             case followPath3: case shoot3:
             hoodpos = hood3; vel = vel3; break;
-            case followPath4:case followPath5: case shoot5:
+            case followPath5: case shoot5:
             hoodpos = hood5; vel = vel5; break;
             case followPath7: case shoot7:
             hoodpos = hood7; vel = vel7; break;
@@ -971,7 +915,6 @@ public class nineplustenblue extends DbzOpMode
         switch (state)
         {
             case followPath1: case shoot1: rawangle = turret1; break;
-            case followPath2: rawangle = 50; break;
             case followPath3: case shoot3: rawangle = turret3; break;
             case followPath5: case shoot5: rawangle = turret5; break;
             case followPath7: case shoot7: rawangle = turret7; break;

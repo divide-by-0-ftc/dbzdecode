@@ -9,6 +9,7 @@ import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.Vector;
+import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -52,11 +53,11 @@ public class nineplusten extends DbzOpMode
         public Paths(Follower f)
         {
             Path1 = f.pathBuilder().addPath(
-                            new BezierLine(new Pose(111.417, 136.815), new Pose(97.149, 83.168)))
+                            new BezierLine(new Pose(111.417, 136.815), new Pose(97.149, 88.168)))
                     .setTangentHeadingInterpolation().build();
 
             Path2 = f.pathBuilder().addPath(
-                            new BezierCurve(new Pose(97.149, 83.168), new Pose(110.51829161451816, 62.02878598247808), new Pose(130.64287359199, 54.18279098873591)))
+                            new BezierCurve(new Pose(97.149, 88.168), new Pose(110.51829161451816, 62.02878598247808), new Pose(130.64287359199, 54.18279098873591)))
                     .setTangentHeadingInterpolation().build();
 
             Path3 = f.pathBuilder().addPath(
@@ -64,12 +65,30 @@ public class nineplusten extends DbzOpMode
                     .setTangentHeadingInterpolation().setReversed().build();
 
             Path4 = f.pathBuilder().addPath(
-                            new BezierCurve(new Pose(97.149, 77.168), new Pose(110.990, 60.361), new Pose(gatex, gatey)))
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(gateh)).build();
+                            new BezierCurve(
+                                    new Pose(97.149, 77.168),
+                                    new Pose(125.836, 61.248),
+                                    new Pose(126.183, 58.526),
+                                    new Pose(138, 59.89999)
+                            ))
+                    .setHeadingInterpolation(
+                            HeadingInterpolator.piecewise(
+                                    new HeadingInterpolator.PiecewiseNode(0,
+                                            .37,
+                                            HeadingInterpolator.tangent
+                                    ),
+                                    new HeadingInterpolator.PiecewiseNode(
+                                            .37,
+                                            1,
+                                            HeadingInterpolator.linear(0, Math.toRadians(33.67))
+                                    )
+                            )
+                    ).build();
+
 
             Path5 = f.pathBuilder().addPath(
-                            new BezierCurve(new Pose(gatex, gatey), new Pose(110.990, 60.361), new Pose(97.149, 77.168)))
-                    .setLinearHeadingInterpolation(Math.toRadians(gateh), Math.toRadians(0)).build();
+                        new BezierLine(new Pose(135.990, 60.987), new Pose(97.149, 77.168)))
+                    .setTangentHeadingInterpolation().setReversed().build();
 
             Path6 = f.pathBuilder().addPath(
                             new BezierCurve(new Pose(97.149, 77.168), new Pose(110.990, 60.361), new Pose(gatex, gatey)))
@@ -209,7 +228,7 @@ public class nineplusten extends DbzOpMode
         switch (state)
         {
             case followPath1:
-                if (!follower.isBusy())
+                if (follower.getCurrentTValue()>.95)
                 {
                     intake.setPower(1);
                     startshoot();
@@ -222,7 +241,7 @@ public class nineplusten extends DbzOpMode
                 if (statetimer.seconds() >= 0.6)
                 {
                     endshoot();
-                    follower.followPath(paths.Path2, true);
+                    follower.followPath(paths.Path2);
                     state = AutonState.followPath2;
                 }
                 break;
@@ -231,14 +250,14 @@ public class nineplusten extends DbzOpMode
                 hold.setPosition(holdclose);
                 if (!follower.isBusy())
                 {
-                    follower.followPath(paths.Path3, true);
+                    follower.followPath(paths.Path3);
                     state = AutonState.followPath3;
                 }
                 break;
 
             case followPath3:
                 hold.setPosition(holdopen);
-                if (!follower.isBusy())
+                if (follower.getCurrentTValue()>.90)
                 {
                     intake.setPower(1);
                     startshoot();
@@ -252,7 +271,7 @@ public class nineplusten extends DbzOpMode
                 {
                     endshoot();
                     intake.setPower(1);
-                    follower.followPath(paths.Path4, true);
+                    follower.followPath(paths.Path4);
                     state = AutonState.followPath4;
                 }
                 break;
@@ -271,14 +290,14 @@ public class nineplusten extends DbzOpMode
 
             case intakeWait1:
                 runballdetection();
-                if (statetimer.seconds() > 0.4)
+                if (statetimer.seconds() > 1.6)
                 {
                     lpush.setPosition(lockpos);
                     rpush.setPosition(lockpos - servooff);
                 }
-                if (statetimer.seconds() >= 0.6) intake.setPower(-1);
+                if (statetimer.seconds() >= 1.65) intake.setPower(-1);
                 if (statetimer.seconds() > 1) hold.setPosition(holdopen);
-                if (bstate == BallState.locked || statetimer.seconds() >= 0.4)
+                if (bstate == BallState.locked || statetimer.seconds() >= 1.2)
                 {
                     bstate = BallState.idle;
                     prevdetect = false;
@@ -295,7 +314,7 @@ public class nineplusten extends DbzOpMode
                 }
                 if (statetimer.seconds() >= 0.6) intake.setPower(-1);
                 if (statetimer.seconds() > 1) hold.setPosition(holdopen);
-                if (!follower.isBusy())
+                if (follower.getCurrentTValue()>.90)
                 {
                     startshoot();
                     statetimer.reset();

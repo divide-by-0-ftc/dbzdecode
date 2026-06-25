@@ -21,28 +21,28 @@ import org.firstinspires.ftc.teamcode.extensions.DbzHardwareMap;
 import org.firstinspires.ftc.teamcode.extensions.DbzOpMode;
 
 @Config
-@Autonomous(name = "nineplustenblue")
-public class nineplustenblue extends DbzOpMode
+@Autonomous(name = "24 Partner. With flow")
+public class nineplustenred extends DbzOpMode
 {
     public static double servooff = 0.01;
     public static double push0 = 0.81, push3 = 0.22;
     public static double lockpos = 0.71;
     public static double holdopen = 0.8, holdclose = 0.467;
-    public static double intakewaittimeout = 1.0;
+    public static double intakewaittimeout = 1.7;
     public static double revdebounce = 1.7, lockdebounce = 1.4;
     public static double bangff = 0.85;
     public static double timeA = 0.00002, timeB = 0.004, timeC = 0.25;
     public static double goalx = 143, goaly = 140;
-    public static double dipamt = 0, dipdelay = 0.5, dipdur = 0.15;
+    public static double dipamt = 0.2, dipdelay = 0.7, dipdur = 0.15;
     public static double tzero = 181;
     public static double tkp = 0.02, tki = 0.0, tkd = 0.001;
     public static double tdead = 0.0, tmax = 1.0, tks = 0.0, tffdead = 0.0;
     public static double thresh = 220, thresh2 = 220;
-    public static double startx = 35.33372228704784, starty = 133.472;
-    public static double tG=0.52, tS=0.10;
-    public static double gatex = 11.75, gatey = 61.75, gateh = 159;
+    public static double startx = 144-35.33372228704784, starty = 133.472;
+    public static double tG=0.4, tS=0.10;
+    public static double gatex = 144-12.9, gatey = 60.55, gateh = -180+151;
 
-    public static double shootx = 57.85, shooty=78;
+    public static double shootx = 144-56.85, shooty=78;
     public static double nearwallx = 144 - 126.373, nearwally = 84.566;
     public static double dthresh = 0.157, dthresh1 = 0.173, dthresh2 = 0.155;
     public static double sticky = 0.15;
@@ -52,32 +52,32 @@ public class nineplustenblue extends DbzOpMode
     // angle. Tune each one independently here.
 
     // Shot 1 - preload, fired right after Path1
-    public static double hood1 = 0.50, vel1 = 1460, turret1 = -155;
+    public static double hood1 = 0.47, vel1 = 1460, turret1 = 155;
 
     // Shot 3 - spike 2 ball, fired after Path3
-    public static double hood3 = 0.46, vel3 = 1520, turret3 = 50;
+    public static double hood3 = 0.46, vel3 = 1550, turret3 = -137.3;
 
     // Shot 5 - first ball off the wall intake leg, fired after Path5
-    public static double hood5 = 0.5, vel5 = 1540, turret5 = 108;
+    public static double hood5 = 0.53, vel5 = 1540, turret5 = -104.5;
 
     // Shot 7 - second wall intake leg, fired after Path7
-    public static double hood7 = 0.5, vel7 = 1520, turret7 = 108;
+    public static double hood7 = 0.53, vel7 = 1520, turret7 = -104.5;
 
     // Shot 9 - third wall intake leg, fired after Path9
-    public static double hood9 = 0.5, vel9 = 1520, turret9 = 108;
+    public static double hood9 = 0.53, vel9 = 1520, turret9 = -104.5;
 
     // Shot 11 - fourth wall intake leg, fired after Path11
-    public static double hood11 = 0.5, vel11 = 1520, turret11 = 108;
+    public static double hood11 = 0.53, vel11 = 1520, turret11 = -104.5;
 
     // Shot 13 - final ball near the gate, fired after Path13
-    public static double hood13 = 0.5, vel13 = 1400, turret13 = 108;
+    public static double hood13 = 0.53, vel13 = 1400, turret13 = -104.5;
 
     // Shot 15 - NEW extra gate cycle ball, fired after Path15
-    public static double hood15 = 0.5, vel15 = 1520, turret15 = 108;
+    public static double hood15 = 0.53, vel15 = 1520, turret15 = -104.5;
 
     // Resting/transit hood, velocity, and turret target used for every
     // other state (driving between shots, intaking, etc.)
-    public static double hoodrest = 0.5, velrest = 1520, turretrest = 108;
+    public static double hoodrest = 0.53, velrest = 1520, turretrest = -104.5;
     // =====================================================================
 
     // Park spot - EDIT THESE to your actual parking coordinates!
@@ -92,23 +92,23 @@ public class nineplustenblue extends DbzOpMode
         public Paths(Follower f)
         {
             Path1 = f.pathBuilder().addPath(
-                            new BezierLine(new Pose(startx, starty), new Pose(47.6, 86.5)))
+                            new BezierLine(new Pose(startx, starty), new Pose(144-47.6, 86.5)))
                     .setTangentHeadingInterpolation().setReversed().build();
 //spike one
             Path2 = f.pathBuilder().addPath(
-                            new BezierLine(new Pose(47.6, 86.5), new Pose(22, 86.5)))
+                            new BezierLine(new Pose(144-47.6, 86.5), new Pose(144-22, 86.5)))
                     .setTangentHeadingInterpolation().build();
 
             Path3 = f.pathBuilder().addPath(
-                            new BezierLine(new Pose(15, 86.5), new Pose(53, 76)))
+                            new BezierLine(new Pose(144-15, 86.5), new Pose(144-53, 76)))
                     .setTangentHeadingInterpolation().setReversed().build();
 //spike 2
             Path4 = f.pathBuilder().addPath(
-                            new BezierCurve(new Pose(53, 76), new Pose(144-110.990, 61.361), new Pose(18.75, 65.49)))
+                            new BezierCurve(new Pose(144-53, 76), new Pose(110.990, 61.961), new Pose(144-17.9, 65.49)))
                     .setTangentHeadingInterpolation().build();
 
             Path5 = f.pathBuilder().addPath(
-                            new BezierLine(new Pose(17.0  , 61.4), new Pose(shootx, shooty)))
+                            new BezierLine(new Pose(144-17.0  , 61.4), new Pose(shootx, shooty)))
                     .setTangentHeadingInterpolation().setReversed().build();
 //gate
             Path6 = f.pathBuilder().addPath(
@@ -122,7 +122,7 @@ public class nineplustenblue extends DbzOpMode
                                     new HeadingInterpolator.PiecewiseNode(
                                             tG,
                                             1,
-                                            HeadingInterpolator.constant(Math.toRadians(gateh))
+                                            HeadingInterpolator.constant(Math.toRadians(-gateh))
                                     )
                             )
                     ).build();
@@ -133,7 +133,7 @@ public class nineplustenblue extends DbzOpMode
                             HeadingInterpolator.piecewise(
                                     new HeadingInterpolator.PiecewiseNode(0,
                                             tS,
-                                            HeadingInterpolator.constant(Math.toRadians(gateh))
+                                            HeadingInterpolator.constant(Math.toRadians(-gateh))
                                     ),
                                     new HeadingInterpolator.PiecewiseNode(
                                             tS,
@@ -154,7 +154,7 @@ public class nineplustenblue extends DbzOpMode
                                     new HeadingInterpolator.PiecewiseNode(
                                             tG,
                                             1,
-                                            HeadingInterpolator.constant(Math.toRadians(gateh))
+                                            HeadingInterpolator.constant(Math.toRadians(-gateh))
                                     )
                             )
                     ).build();
@@ -165,7 +165,7 @@ public class nineplustenblue extends DbzOpMode
                             HeadingInterpolator.piecewise(
                                     new HeadingInterpolator.PiecewiseNode(0,
                                             tS,
-                                            HeadingInterpolator.constant(Math.toRadians(gateh))
+                                            HeadingInterpolator.constant(Math.toRadians(-gateh))
                                     ),
                                     new HeadingInterpolator.PiecewiseNode(
                                             tS,
@@ -186,7 +186,7 @@ public class nineplustenblue extends DbzOpMode
                                     new HeadingInterpolator.PiecewiseNode(
                                             tG,
                                             1,
-                                            HeadingInterpolator.constant(Math.toRadians(gateh))
+                                            HeadingInterpolator.constant(Math.toRadians(-gateh))
                                     )
                             )
                     ).build();
@@ -197,7 +197,7 @@ public class nineplustenblue extends DbzOpMode
                             HeadingInterpolator.piecewise(
                                     new HeadingInterpolator.PiecewiseNode(0,
                                             tS,
-                                            HeadingInterpolator.constant(Math.toRadians(gateh))
+                                            HeadingInterpolator.constant(Math.toRadians(-gateh))
                                     ),
                                     new HeadingInterpolator.PiecewiseNode(
                                             tS,
@@ -218,7 +218,7 @@ public class nineplustenblue extends DbzOpMode
                                     new HeadingInterpolator.PiecewiseNode(
                                             tG,
                                             1,
-                                            HeadingInterpolator.constant(Math.toRadians(gateh))
+                                            HeadingInterpolator.constant(Math.toRadians(-gateh))
                                     )
                             )
                     ).build();
@@ -229,7 +229,7 @@ public class nineplustenblue extends DbzOpMode
                             HeadingInterpolator.piecewise(
                                     new HeadingInterpolator.PiecewiseNode(0,
                                             tS,
-                                            HeadingInterpolator.constant(Math.toRadians(gateh))
+                                            HeadingInterpolator.constant(Math.toRadians(-gateh))
                                     ),
                                     new HeadingInterpolator.PiecewiseNode(
                                             tS,
@@ -251,7 +251,7 @@ public class nineplustenblue extends DbzOpMode
                                     new HeadingInterpolator.PiecewiseNode(
                                             tG,
                                             1,
-                                            HeadingInterpolator.constant(Math.toRadians(gateh))
+                                            HeadingInterpolator.constant(Math.toRadians(-gateh))
                                     )
                             )
                     ).build();
@@ -262,7 +262,7 @@ public class nineplustenblue extends DbzOpMode
                             HeadingInterpolator.piecewise(
                                     new HeadingInterpolator.PiecewiseNode(0,
                                             tS,
-                                            HeadingInterpolator.constant(Math.toRadians(gateh))
+                                            HeadingInterpolator.constant(Math.toRadians(-gateh))
                                     ),
                                     new HeadingInterpolator.PiecewiseNode(
                                             tS,
